@@ -1,5 +1,5 @@
 import os
-from models import Student, Info, connect_db
+from models import Student, Info, Teacher, connect_db
 from flask import Flask, redirect, request, jsonify, make_response, abort
 from sqlalchemy import or_, and_
 from sqlalchemy.orm import Session
@@ -44,6 +44,35 @@ def get_student(student_id):
         'client_id': client_id,
         'count': 1,
         'students': student.json()
+        })
+
+@app.route('/api/v2.0/teachers', methods=['GET'])
+def get_teachers():
+    teachers = db.query(Teacher). \
+            filter(or_(Teacher.role == 'teacher', Teacher.role == 'admin')). \
+            filter(Teacher.username != 'administrator'). \
+            all()
+
+    return jsonify({
+        'client_id': client_id,
+        'count': len(teachers),
+        'teachers': [teacher.json() for teacher in teachers]
+        })
+
+@app.route('/api/v2.0/teachers/<int:teacher_id>', methods=['GET'])
+def get_teacher(teacher_id):
+    teacher = db.query(Teacher). \
+            filter(Teacher.id == teacher_id). \
+            filter(Teacher.username != 'administrator'). \
+            first()
+
+    if not teacher:
+        abort(404)
+
+    return jsonify({
+        'client_id': client_id,
+        'count': 1,
+        'teachers': teacher.json()
         })
 
 @app.errorhandler(404)
