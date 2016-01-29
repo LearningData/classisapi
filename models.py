@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine, or_
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import Column, Integer, String, ForeignKey, Table
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session, relationship
 
@@ -13,6 +13,11 @@ class Student(Base):
 
     info_id = relationship("Info",
                         foreign_keys='Info.id',
+                        lazy='subquery',
+                        )
+
+    gidsids = relationship("GidSid",
+                        foreign_keys='GidSid.student_id',
                         lazy='subquery',
                         )
 
@@ -57,20 +62,6 @@ class Teacher(Base):
             return False
         return True
 
-    def get_title(self):
-	titles = {'': '',
-            '0': '',
-            '1': 'mr',
-            '2': 'mrs',
-            '3': 'srd',
-            '4': 'srada',
-            '5': 'miss',
-            '6': 'dr',
-            '7': 'ms',
-            '8': 'major'
-            };
-        return str(titles[str(self.title)])
-
     def json(self):
         return {
             'id': self.id,
@@ -81,11 +72,67 @@ class Teacher(Base):
             'username': self.username,
             'epf_username': self.epfusername,
             'email': self.email,
-            'title': self.get_title(),
+            'title': get_title(self.title),
             'language': self.language,
             'role': self.role,
             'personal_email': self.personalemail,
             'mobile_phone': str(self.mobilephone),
+        }
+
+class GidSid(Base):
+    __tablename__ = 'gidsid'
+
+    student_id = Column("student_id", Integer, ForeignKey("student.id"), primary_key=True)
+    guardian_id = Column("guardian_id", Integer, ForeignKey("guardian.id"), primary_key=True)
+
+    def json(self):
+        return {
+            'id': self.student_id,
+            'priority': self.priority,
+            'mailing': self.mailing,
+            'relationship': self.relationship,
+        }
+
+class Guardian(Base):
+    __tablename__ = 'guardian'
+
+    id = Column('id', Integer, primary_key=True)
+
+    gidsids = relationship("GidSid",
+                        foreign_keys='GidSid.guardian_id',
+                        lazy='subquery',
+                        )
+
+    students = relationship("Student",
+                        secondary="gidsid",
+                        primaryjoin=id==GidSid.guardian_id,
+                        secondaryjoin=Student.id==GidSid.student_id,
+                        lazy='subquery',
+                        )
+
+    def is_active(self):
+        for student in self.students:
+            if student.is_active():
+                return True
+        return False
+
+    def json(self):
+        return {
+            'id': self.id,
+            'name': self.forename,
+            'last_name': self.surname,
+            'gender': self.gender,
+            'date_of_birth': str(self.dob),
+            'active': self.is_active(),
+            'username': self.epfusername,
+            'epf_username': self.epfusername,
+            'email': self.email,
+            'title': get_title(self.title),
+            'language': self.language,
+            'nationality': self.nationality,
+            'profession': self.profession,
+            'private': self.private,
+            'students': [gidsid.json() for gidsid in self.gidsids],
         }
 
 
@@ -94,3 +141,17 @@ def connect_db(db_url):
     Base.prepare(engine, reflect=True)
 
     return Session(engine)
+
+def get_title(title):
+    titles = {'': '',
+        '0': '',
+        '1': 'mr',
+        '2': 'mrs',
+        '3': 'srd',
+        '4': 'srada',
+        '5': 'miss',
+        '6': 'dr',
+        '7': 'ms',
+        '8': 'major'
+        };
+    return str(titles[str(title)])
