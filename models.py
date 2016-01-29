@@ -16,6 +16,11 @@ class Student(Base):
                         lazy='subquery',
                         )
 
+    gidsids = relationship("GidSid",
+                        foreign_keys='GidSid.student_id',
+                        lazy='subquery',
+                        )
+
     def is_active(self):
         if self.info.enrolstatus == 'C':
             return True
@@ -74,21 +79,34 @@ class Teacher(Base):
             'mobile_phone': str(self.mobilephone),
         }
 
-class Gidsid(Base):
+class GidSid(Base):
     __tablename__ = 'gidsid'
 
     student_id = Column("student_id", Integer, ForeignKey("student.id"), primary_key=True)
     guardian_id = Column("guardian_id", Integer, ForeignKey("guardian.id"), primary_key=True)
+
+    def json(self):
+        return {
+            'id': self.student_id,
+            'priority': self.priority,
+            'mailing': self.mailing,
+            'relationship': self.relationship,
+        }
 
 class Guardian(Base):
     __tablename__ = 'guardian'
 
     id = Column('id', Integer, primary_key=True)
 
+    gidsids = relationship("GidSid",
+                        foreign_keys='GidSid.guardian_id',
+                        lazy='subquery',
+                        )
+
     students = relationship("Student",
                         secondary="gidsid",
-                        primaryjoin=id==Gidsid.guardian_id,
-                        secondaryjoin=Student.id==Gidsid.student_id,
+                        primaryjoin=id==GidSid.guardian_id,
+                        secondaryjoin=Student.id==GidSid.student_id,
                         lazy='subquery',
                         )
 
@@ -114,7 +132,7 @@ class Guardian(Base):
             'nationality': self.nationality,
             'profession': self.profession,
             'private': self.private,
-            'students': [student.id for student in self.students],
+            'students': [gidsid.json() for gidsid in self.gidsids],
         }
 
 
