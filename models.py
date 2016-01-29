@@ -21,6 +21,11 @@ class Student(Base):
                         lazy='subquery',
                         )
 
+    classes = relationship("CidSid",
+                        foreign_keys='CidSid.student_id',
+                        lazy='subquery',
+                        )
+
     def is_active(self):
         if self.info.enrolstatus == 'C':
             return True
@@ -43,6 +48,7 @@ class Student(Base):
             'language': self.info.language,
             'entry_date': str(self.info.entrydate),
             'leaving_date': str(self.info.leavingdate),
+            'classes': [class_member.class_id for class_member in self.classes],
         }
 
 
@@ -56,6 +62,11 @@ class Teacher(Base):
     __tablename__ = 'users'
 
     id = Column('uid', Integer, primary_key=True)
+
+    classes = relationship("TidCid",
+                        foreign_keys='TidCid.teacher_id',
+                        lazy='subquery',
+                        )
 
     def is_active(self):
         if self.nologin:
@@ -77,7 +88,9 @@ class Teacher(Base):
             'role': self.role,
             'personal_email': self.personalemail,
             'mobile_phone': str(self.mobilephone),
+            'classes': [teaching_class.class_id for teaching_class in self.classes],
         }
+
 
 class GidSid(Base):
     __tablename__ = 'gidsid'
@@ -93,17 +106,20 @@ class GidSid(Base):
             'relationship': self.relationship,
         }
 
+
 class CidSid(Base):
     __tablename__ = 'cidsid'
 
     student_id = Column("student_id", Integer, ForeignKey("student.id"), primary_key=True)
     class_id = Column("class_id", Integer, ForeignKey("class.id"), primary_key=True)
 
+
 class TidCid(Base):
     __tablename__ = 'tidcid'
 
-    teacher_id = Column("teacher_id", Integer, ForeignKey("users.uid"), primary_key=True)
+    teacher_id = Column("teacher_id", Integer, ForeignKey("users.username"), primary_key=True)
     class_id = Column("class_id", Integer, ForeignKey("class.id"), primary_key=True)
+
 
 class Course(Base):
     __tablename__ = 'course'
@@ -115,6 +131,7 @@ class Course(Base):
             'id': self.id,
             'name': self.name,
         }
+
 
 class Cohort(Base):
     __tablename__ = 'cohort'
@@ -136,6 +153,7 @@ class Cohort(Base):
             'year': self.year,
             'classes': [teaching_class.json() for teaching_class in self.classes],
         }
+
 
 class Guardian(Base):
     __tablename__ = 'guardian'
@@ -179,6 +197,7 @@ class Guardian(Base):
             'students': [gidsid.json() for gidsid in self.gidsids],
         }
 
+
 class Subject(Base):
     __tablename__ = 'subject'
 
@@ -189,6 +208,7 @@ class Subject(Base):
             'id': self.id,
             'name': self.name,
         }
+
 
 class Class(Base):
     __tablename__ = 'class'
@@ -220,6 +240,7 @@ class Class(Base):
             'students': [student.student_id for student in self.students],
             'teachers': [teacher.teacher_id for teacher in self.teachers],
         }
+
 
 def connect_db(db_url):
     engine = create_engine(db_url, convert_unicode=True)
