@@ -26,8 +26,8 @@ def get_students():
             all()
 
     return jsonify({
-        'client_id': client_id,
-        'count': len(students),
+        '_client_id': client_id,
+        '_count': len(students),
         'students': [student.json() for student in students]
         })
 
@@ -41,8 +41,8 @@ def get_student(student_id):
         abort(404)
 
     return jsonify({
-        'client_id': client_id,
-        'count': 1,
+        '_client_id': client_id,
+        '_count': 1,
         'students': student.json()
         })
 
@@ -54,8 +54,8 @@ def get_teachers():
             all()
 
     return jsonify({
-        'client_id': client_id,
-        'count': len(teachers),
+        '_client_id': client_id,
+        '_count': len(teachers),
         'teachers': [teacher.json() for teacher in teachers]
         })
 
@@ -70,8 +70,8 @@ def get_teacher(teacher_id):
         abort(404)
 
     return jsonify({
-        'client_id': client_id,
-        'count': 1,
+        '_client_id': client_id,
+        '_count': 1,
         'teachers': teacher.json()
         })
 
@@ -81,8 +81,8 @@ def get_guardians():
             all()
 
     return jsonify({
-        'client_id': client_id,
-        'count': len(guardians),
+        '_client_id': client_id,
+        '_count': len(guardians),
         'guardians': [guardian.json() for guardian in guardians]
         })
 
@@ -96,8 +96,8 @@ def get_guardian(guardian_id):
         abort(404)
 
     return jsonify({
-        'client_id': client_id,
-        'count': 1,
+        '_client_id': client_id,
+        '_count': 1,
         'guardians': guardian.json()
         })
 
