@@ -83,7 +83,7 @@ def get_guardians():
     return jsonify({
         'client_id': client_id,
         'count': len(guardians),
-        'teachers': [guardian.json() for guardian in guardians]
+        'guardians': [guardian.json() for guardian in guardians]
         })
 
 @app.route('/api/v2.0/guardians/<int:guardian_id>', methods=['GET'])
@@ -98,7 +98,7 @@ def get_guardian(guardian_id):
     return jsonify({
         'client_id': client_id,
         'count': 1,
-        'teachers': guardian.json()
+        'guardians': guardian.json()
         })
 
 @app.errorhandler(404)

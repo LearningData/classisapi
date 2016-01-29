@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine, or_
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import Column, Integer, String, ForeignKey, Table
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session, relationship
 
@@ -74,13 +74,29 @@ class Teacher(Base):
             'mobile_phone': str(self.mobilephone),
         }
 
+class Gidsid(Base):
+    __tablename__ = 'gidsid'
+
+    student_id = Column("student_id", Integer, ForeignKey("student.id"), primary_key=True)
+    guardian_id = Column("guardian_id", Integer, ForeignKey("guardian.id"), primary_key=True)
+
 class Guardian(Base):
     __tablename__ = 'guardian'
 
     id = Column('id', Integer, primary_key=True)
 
+    students = relationship("Student",
+                        secondary="gidsid",
+                        primaryjoin=id==Gidsid.guardian_id,
+                        secondaryjoin=Student.id==Gidsid.student_id,
+                        lazy='subquery',
+                        )
+
     def is_active(self):
-        return True
+        for student in self.students:
+            if student.is_active():
+                return True
+        return False
 
     def json(self):
         return {
@@ -98,6 +114,7 @@ class Guardian(Base):
             'nationality': self.nationality,
             'profession': self.profession,
             'private': self.private,
+            'students': [student.id for student in self.students],
         }
 
 
