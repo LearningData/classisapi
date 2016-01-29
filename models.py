@@ -57,20 +57,6 @@ class Teacher(Base):
             return False
         return True
 
-    def get_title(self):
-	titles = {'': '',
-            '0': '',
-            '1': 'mr',
-            '2': 'mrs',
-            '3': 'srd',
-            '4': 'srada',
-            '5': 'miss',
-            '6': 'dr',
-            '7': 'ms',
-            '8': 'major'
-            };
-        return str(titles[str(self.title)])
-
     def json(self):
         return {
             'id': self.id,
@@ -81,7 +67,7 @@ class Teacher(Base):
             'username': self.username,
             'epf_username': self.epfusername,
             'email': self.email,
-            'title': self.get_title(),
+            'title': get_title(self.title),
             'language': self.language,
             'role': self.role,
             'personal_email': self.personalemail,
@@ -96,20 +82,6 @@ class Guardian(Base):
     def is_active(self):
         return True
 
-    def get_title(self):
-	titles = {'': '',
-            '0': '',
-            '1': 'mr',
-            '2': 'mrs',
-            '3': 'srd',
-            '4': 'srada',
-            '5': 'miss',
-            '6': 'dr',
-            '7': 'ms',
-            '8': 'major'
-            };
-        return str(titles[str(self.title)])
-
     def json(self):
         return {
             'id': self.id,
@@ -121,7 +93,7 @@ class Guardian(Base):
             'username': self.epfusername,
             'epf_username': self.epfusername,
             'email': self.email,
-            'title': self.get_title(),
+            'title': get_title(self.title),
             'language': self.language,
             'nationality': self.nationality,
             'profession': self.profession,
@@ -134,3 +106,17 @@ def connect_db(db_url):
     Base.prepare(engine, reflect=True)
 
     return Session(engine)
+
+def get_title(title):
+    titles = {'': '',
+        '0': '',
+        '1': 'mr',
+        '2': 'mrs',
+        '3': 'srd',
+        '4': 'srada',
+        '5': 'miss',
+        '6': 'dr',
+        '7': 'ms',
+        '8': 'major'
+        };
+    return str(titles[str(title)])
