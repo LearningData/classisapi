@@ -88,6 +88,46 @@ class Teacher(Base):
             'mobile_phone': str(self.mobilephone),
         }
 
+class Guardian(Base):
+    __tablename__ = 'guardian'
+
+    id = Column('id', Integer, primary_key=True)
+
+    def is_active(self):
+        return True
+
+    def get_title(self):
+	titles = {'': '',
+            '0': '',
+            '1': 'mr',
+            '2': 'mrs',
+            '3': 'srd',
+            '4': 'srada',
+            '5': 'miss',
+            '6': 'dr',
+            '7': 'ms',
+            '8': 'major'
+            };
+        return str(titles[str(self.title)])
+
+    def json(self):
+        return {
+            'id': self.id,
+            'name': self.forename,
+            'last_name': self.surname,
+            'gender': self.gender,
+            'date_of_birth': str(self.dob),
+            'active': self.is_active(),
+            'username': self.epfusername,
+            'epf_username': self.epfusername,
+            'email': self.email,
+            'title': self.get_title(),
+            'language': self.language,
+            'nationality': self.nationality,
+            'profession': self.profession,
+            'private': self.private,
+        }
+
 
 def connect_db(db_url):
     engine = create_engine(db_url, convert_unicode=True)
