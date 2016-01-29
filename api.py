@@ -1,5 +1,5 @@
 import os
-from models import Student, Info, Teacher, Guardian, connect_db
+from models import Student, Info, Teacher, Guardian, Cohort, Class, connect_db
 from flask import Flask, redirect, request, jsonify, make_response, abort
 from sqlalchemy import or_, and_
 from sqlalchemy.orm import Session
@@ -99,6 +99,58 @@ def get_guardian(guardian_id):
         'client_id': client_id,
         'count': 1,
         'guardians': guardian.json()
+        })
+
+@app.route('/api/v2.0/classes', methods=['GET'])
+def get_classes():
+    classes = db.query(Class). \
+            all()
+
+    return jsonify({
+        '_client_id': client_id,
+        '_count': len(classes),
+        'classes': [teaching_class.json() for teaching_class in classes]
+        })
+
+@app.route('/api/v2.0/classes/<int:class_id>', methods=['GET'])
+def get_class(class_id):
+    teaching_class = db.query(Class). \
+            filter(Class.id == class_id). \
+            first()
+
+    if not teaching_class:
+        abort(404)
+
+    return jsonify({
+        '_client_id': client_id,
+        '_count': 1,
+        'classes': teaching_class.json()
+        })
+
+@app.route('/api/v2.0/classes/year/<int:year>', methods=['GET'])
+def get_class_by_year(year):
+    classes = db.query(Class). \
+            join(Class.cohort).\
+            filter(Cohort.year == year). \
+            all()
+
+    return jsonify({
+        '_client_id': client_id,
+        '_count': len(classes),
+        'classes': [teaching_class.json() for teaching_class in classes]
+        })
+
+@app.route('/api/v2.0/classes/course/<course>', methods=['GET'])
+def get_class_by_course(course):
+    classes = db.query(Class). \
+            join(Class.cohort).\
+            filter(Cohort.course_id == course). \
+            all()
+
+    return jsonify({
+        '_client_id': client_id,
+        '_count': len(classes),
+        'classes': [teaching_class.json() for teaching_class in classes]
         })
 
 @app.errorhandler(404)
