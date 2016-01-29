@@ -93,6 +93,26 @@ class GidSid(Base):
             'relationship': self.relationship,
         }
 
+class Cohort(Base):
+    __tablename__ = 'cohort'
+
+    id = Column("id", Integer, primary_key=True)
+
+    classes = relationship("Class",
+                        foreign_keys="Class.cohort_id",
+                        primaryjoin="Cohort.id==Class.cohort_id",
+                        lazy='subquery',
+                        )
+
+    def json(self):
+        return {
+            'id': self.id,
+            'course': self.course_id,
+            'stage': self.stage,
+            'year': self.year,
+            'classes': [teaching_class.json() for teaching_class in self.classes],
+        }
+
 class Guardian(Base):
     __tablename__ = 'guardian'
 
@@ -135,6 +155,21 @@ class Guardian(Base):
             'students': [gidsid.json() for gidsid in self.gidsids],
         }
 
+class Class(Base):
+    __tablename__ = 'class'
+
+    id = Column('id', Integer, primary_key=True)
+    cohort_id = Column('cohort_id', Integer, ForeignKey('cohort.id'), primary_key=True)
+
+    def json(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'subject_id': self.subject_id,
+            'stage': self.cohort.stage,
+            'year': self.cohort.year,
+            'course': self.cohort.course_id,
+        }
 
 def connect_db(db_url):
     engine = create_engine(db_url, convert_unicode=True)

@@ -1,5 +1,5 @@
 import os
-from models import Student, Info, Teacher, Guardian, connect_db
+from models import Student, Info, Teacher, Guardian, Class, connect_db
 from flask import Flask, redirect, request, jsonify, make_response, abort
 from sqlalchemy import or_, and_
 from sqlalchemy.orm import Session
@@ -99,6 +99,17 @@ def get_guardian(guardian_id):
         'client_id': client_id,
         'count': 1,
         'guardians': guardian.json()
+        })
+
+@app.route('/api/v2.0/classes', methods=['GET'])
+def get_classes():
+    classes = db.query(Class). \
+            all()
+
+    return jsonify({
+        'client_id': client_id,
+        'count': len(classes),
+        'classes': [teaching_class.json() for teaching_class in classes]
         })
 
 @app.errorhandler(404)
