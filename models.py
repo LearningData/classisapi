@@ -93,10 +93,34 @@ class GidSid(Base):
             'relationship': self.relationship,
         }
 
+class CidSid(Base):
+    __tablename__ = 'cidsid'
+
+    student_id = Column("student_id", Integer, ForeignKey("student.id"), primary_key=True)
+    class_id = Column("class_id", Integer, ForeignKey("class.id"), primary_key=True)
+
+class TidCid(Base):
+    __tablename__ = 'tidcid'
+
+    teacher_id = Column("teacher_id", Integer, ForeignKey("users.uid"), primary_key=True)
+    class_id = Column("class_id", Integer, ForeignKey("class.id"), primary_key=True)
+
+class Course(Base):
+    __tablename__ = 'course'
+
+    id = Column('id', Integer, primary_key=True)
+
+    def json(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+        }
+
 class Cohort(Base):
     __tablename__ = 'cohort'
 
     id = Column("id", Integer, primary_key=True)
+    course_id = Column('course_id', Integer, ForeignKey('course.id'), primary_key=True)
 
     classes = relationship("Class",
                         foreign_keys="Class.cohort_id",
@@ -155,20 +179,46 @@ class Guardian(Base):
             'students': [gidsid.json() for gidsid in self.gidsids],
         }
 
+class Subject(Base):
+    __tablename__ = 'subject'
+
+    id = Column('id', Integer, primary_key=True)
+
+    def json(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+        }
+
 class Class(Base):
     __tablename__ = 'class'
 
     id = Column('id', Integer, primary_key=True)
     cohort_id = Column('cohort_id', Integer, ForeignKey('cohort.id'), primary_key=True)
+    subject_id = Column('subject_id', Integer, ForeignKey('subject.id'), primary_key=True)
+
+    students = relationship("CidSid",
+                        foreign_keys='CidSid.class_id',
+                        lazy='subquery',
+                        )
+
+    teachers = relationship("TidCid",
+                        foreign_keys='TidCid.class_id',
+                        lazy='subquery',
+                        )
 
     def json(self):
         return {
             'id': self.id,
             'name': self.name,
             'subject_id': self.subject_id,
+            'subject_name': self.subject.name,
             'stage': self.cohort.stage,
             'year': self.cohort.year,
-            'course': self.cohort.course_id,
+            'course_id': self.cohort.course_id,
+            'course_name': self.cohort.course.name,
+            'students': [student.student_id for student in self.students],
+            'teachers': [teacher.teacher_id for teacher in self.teachers],
         }
 
 def connect_db(db_url):
