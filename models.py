@@ -32,7 +32,7 @@ class Student(Base):
                         )
 
     def is_active(self):
-        if self.info.enrolstatus == 'C':
+        if self.info and self.info.enrolstatus == 'C':
             return True
         return False
 
@@ -74,6 +74,11 @@ class Teacher(Base):
                         lazy='subquery',
                         )
 
+    permissions = relationship("Permission",
+                        foreign_keys='Permission.user_id',
+                        lazy='subquery',
+                        )
+
     def is_active(self):
         if self.nologin:
             return False
@@ -95,6 +100,8 @@ class Teacher(Base):
             'personal_email': self.personalemail,
             'mobile_phone': str(self.mobilephone),
             'classes': [teaching_class.class_id for teaching_class in self.classes],
+            'communities': [permission.group.community_id for permission in self.permissions if permission.is_community()],
+            'yeargroups': [permission.group.yeargroup_id for permission in self.permissions if permission.is_yeargroup()],
         }
 
 
@@ -155,6 +162,26 @@ class Permission(Base):
     user_id = Column('uid', Integer, ForeignKey("users.uid"), primary_key=True)
     group_id = Column("gid", Integer, ForeignKey("groups.gid"), primary_key=True)
 
+    def is_yeargroup(self):
+        if self.group and self.group.type == 'p' \
+                and self.group.yeargroup_id > -10 \
+                and self.group.community_id == 0:
+            return True
+        return False
+
+    def is_community(self):
+        if self.group and self.group.community_id > 0:
+            return True
+        return False
+
+    def json(self):
+        return {
+            'group_id': self.group_id,
+            'user_id': self.user_id,
+            'subject_id': self.group.subject_id,
+            'yeargroup_id': self.group.yeargroup_id,
+            'community_id': self.group.community_id,
+        }
 
 class CohidComid(Base):
     __tablename__ = 'cohidcomid'
