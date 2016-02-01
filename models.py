@@ -385,11 +385,22 @@ class Class(Base):
         }
 
 
+class MidCid(Base):
+    __tablename__ = 'midcid'
+
+    mark_id = Column('mark_id', Integer, ForeignKey('mark.id'), primary_key=True)
+    class_id = Column('class_id', Integer, ForeignKey('class.id'), primary_key=True)
+
+
 class Mark(Base):
     __tablename__ = 'mark'
 
     id = Column('id', Integer, primary_key=True)
     homework_id = Column('midlist', Integer, ForeignKey('homework.id'))
+
+    classes = relationship("MidCid",
+                         foreign_keys='MidCid.mark_id',
+                         lazy='subquery')
 
     def is_homework(self):
         if self.marktype == 'hw':
@@ -420,7 +431,8 @@ class Homework(Base):
             'stage': self.stage,
             'author': self.author,
             'course_id': self.course_id,
-            'entry_date': [str(mark.entrydate) for mark in self.marks],
+            'mark': [{'entry_date': str(mark.entrydate), 'type': str(mark.marktype)} for mark in self.marks],
+            'classes': [class_group.class_id for mark in self.marks for class_group in mark.classes],
         }
 
 
