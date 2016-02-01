@@ -155,8 +155,8 @@ def get_class_by_course(course):
         'classes': [teaching_class.json() for teaching_class in classes]
         })
 
-@app.route('/api/v2.0/groups', methods=['GET'])
-def get_groups():
+@app.route('/api/v2.0/cohorts', methods=['GET'])
+def get_cohorts():
     cohorts = db.query(Cohort). \
             filter(Cohort.year == year). \
             all()
@@ -165,26 +165,26 @@ def get_groups():
         '_client_id': client_id,
         '_count': len(cohorts),
         '_academic_year': year,
-        'groups': [cohort.json() for cohort in cohorts]
+        'cohorts': [cohort.json() for cohort in cohorts]
         })
 
-@app.route('/api/v2.0/groups/<int:group_id>', methods=['GET'])
-def get_group(group_id):
-    group = db.query(Cohort). \
-            filter(Cohort.id == group_id). \
+@app.route('/api/v2.0/cohorts/<int:cohort_id>', methods=['GET'])
+def get_cohort(cohort_id):
+    cohort = db.query(Cohort). \
+            filter(Cohort.id == cohort_id). \
             first()
 
-    if not group:
+    if not cohort:
         abort(404)
 
     return jsonify({
         '_client_id': client_id,
         '_count': 1,
-        'classes': group.json()
+        'cohorts': cohort.json()
         })
 
-@app.route('/api/v2.0/groups/year/<int:year>', methods=['GET'])
-def get_groups_by_year(year):
+@app.route('/api/v2.0/cohorts/year/<int:year>', methods=['GET'])
+def get_cohorts_by_year(year):
     cohorts = db.query(Cohort). \
             filter(Cohort.year == year). \
             all()
@@ -193,7 +193,20 @@ def get_groups_by_year(year):
         '_client_id': client_id,
         '_count': len(cohorts),
         '_academic_year': year,
-        'groups': [cohort.json() for cohort in cohorts]
+        'cohorts': [cohort.json() for cohort in cohorts]
+        })
+
+@app.route('/api/v2.0/cohorts/course/<course>', methods=['GET'])
+def get_cohorts_by_course(course):
+    cohorts = db.query(Cohort). \
+            filter(and_(Cohort.year == year, Cohort.course_id == course)). \
+            all()
+
+    return jsonify({
+        '_client_id': client_id,
+        '_count': len(cohorts),
+        '_academic_year': year,
+        'cohorts': [cohort.json() for cohort in cohorts]
         })
 
 @app.errorhandler(404)
