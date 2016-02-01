@@ -168,6 +168,34 @@ def get_groups():
         'groups': [cohort.json() for cohort in cohorts]
         })
 
+@app.route('/api/v2.0/groups/<int:group_id>', methods=['GET'])
+def get_group(group_id):
+    group = db.query(Cohort). \
+            filter(Cohort.id == group_id). \
+            first()
+
+    if not group:
+        abort(404)
+
+    return jsonify({
+        '_client_id': client_id,
+        '_count': 1,
+        'classes': group.json()
+        })
+
+@app.route('/api/v2.0/groups/year/<int:year>', methods=['GET'])
+def get_groups_by_year(year):
+    cohorts = db.query(Cohort). \
+            filter(Cohort.year == year). \
+            all()
+
+    return jsonify({
+        '_client_id': client_id,
+        '_count': len(cohorts),
+        '_academic_year': year,
+        'groups': [cohort.json() for cohort in cohorts]
+        })
+
 @app.errorhandler(404)
 def not_found(error):
         return make_response(jsonify({'error': 'Not found'}), 404)
