@@ -209,6 +209,29 @@ def get_cohorts_by_course(course):
         'cohorts': [cohort.json() for cohort in cohorts]
         })
 
+@app.route('/api/v2.0/communities', methods=['GET'])
+def get_communities():
+    communities = db.query(Community). \
+            all()
+
+    return jsonify({
+        '_client_id': client_id,
+        '_count': len(communities),
+        'communities': [community.json(community_dates = True) for community in communities]
+        })
+
+@app.route('/api/v2.0/communities/type/<type>', methods=['GET'])
+def get_communities_by_type(type):
+    communities = db.query(Community). \
+            filter(Community.type == type). \
+            all()
+
+    return jsonify({
+        '_client_id': client_id,
+        '_count': len(communities),
+        'communities': [community.json(community_dates = True) for community in communities]
+        })
+
 @app.route('/api/v2.0/communities/<int:community_id>', methods=['GET'])
 def get_community(community_id):
     community = db.query(Community). \
