@@ -133,11 +133,29 @@ class Course(Base):
         }
 
 
+class Group(Base):
+    __tablename__ = 'groups'
+
+    id = Column('gid', Integer, primary_key=True)
+    subject_id = Column("subject_id", String, ForeignKey("subject.id"))
+    course_id = Column("course_id", String, ForeignKey("course.id"))
+    yeargroup_id = Column("yeargroup_id", Integer, ForeignKey("yeargroup.id"))
+    community_id = Column("community_id", Integer, ForeignKey("community.id"))
+
+
+class Permission(Base):
+    __tablename__ = 'perms'
+
+    user_id = Column('uid', Integer, ForeignKey("users.uid"), primary_key=True)
+    group_id = Column("gid", Integer, ForeignKey("groups.gid"), primary_key=True)
+
+
 class CohidComid(Base):
     __tablename__ = 'cohidcomid'
 
     cohort_id = Column("cohort_id", Integer, ForeignKey("cohort.id"), primary_key=True)
     community_id = Column("community_id", Integer, ForeignKey("community.id"), primary_key=True)
+
 
 class ComidSid(Base):
     __tablename__ = 'comidsid'
@@ -157,6 +175,7 @@ class ComidSid(Base):
             'leaving_date': str(self.leavingdate),
             'active': self.is_active()
         }
+
 
 class Community(Base):
     __tablename__ = 'community'
