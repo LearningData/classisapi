@@ -36,6 +36,17 @@ class Student(Base):
             return True
         return False
 
+    def get_picture(self):
+        if self.info.epfusername != '':
+            return get_user_picture(self.info.epfusername)
+        return
+
+    def get_pictures_json(self):
+        return {
+            'student_id': self.id,
+            'picture': self.get_picture(),
+        }
+
     def json(self):
         return {
             'id': self.id,
@@ -83,6 +94,17 @@ class Teacher(Base):
         if self.nologin:
             return False
         return True
+
+    def get_picture(self):
+        if self.epfusername != '':
+            return get_user_picture(self.epfusername)
+        return
+
+    def get_pictures_json(self):
+        return {
+            'teacher_id': self.id,
+            'picture': self.get_picture(),
+        }
 
     def json(self):
         return {
@@ -413,3 +435,6 @@ def get_curriculum_year(db):
             first()
 
     return curriculum_year.year
+
+def get_user_picture(epfusername):
+    return epfusername + ".jpeg"
