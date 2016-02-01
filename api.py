@@ -209,6 +209,21 @@ def get_cohorts_by_course(course):
         'cohorts': [cohort.json() for cohort in cohorts]
         })
 
+@app.route('/api/v2.0/communities/<int:community_id>', methods=['GET'])
+def get_community(community_id):
+    community = db.query(Community). \
+            filter(Community.id == community_id). \
+            first()
+
+    if not community:
+        abort(404)
+
+    return jsonify({
+        '_client_id': client_id,
+        '_count': 1,
+        'communities': community.json(community_dates = True)
+        })
+
 @app.errorhandler(404)
 def not_found(error):
         return make_response(jsonify({'error': 'Not found'}), 404)
