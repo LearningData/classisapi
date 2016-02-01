@@ -385,6 +385,45 @@ class Class(Base):
         }
 
 
+class Mark(Base):
+    __tablename__ = 'mark'
+
+    id = Column('id', Integer, primary_key=True)
+    homework_id = Column('midlist', Integer, ForeignKey('homework.id'))
+
+    def is_homework(self):
+        if self.marktype == 'hw':
+            return True
+        return False
+
+
+class Homework(Base):
+    __tablename__ = 'homework'
+
+    id = Column('id', Integer, primary_key=True)
+    course_id = Column('course_id', Integer, ForeignKey('course.id'))
+    subject_id = Column('subject_id', Integer, ForeignKey('subject.id'))
+    component_id = Column('component_id', Integer, ForeignKey('component.id'))
+
+    marks = relationship("Mark",
+                        foreign_keys='Mark.homework_id',
+                        lazy='subquery',
+                        )
+
+    def json(self):
+        return {
+            'id': self.id,
+            'title': self.title,
+            'description': self.description,
+            'subject_id': self.subject_id,
+            'component_id': self.component_id,
+            'stage': self.stage,
+            'author': self.author,
+            'course_id': self.course_id,
+            'entry_date': [str(mark.entrydate) for mark in self.marks],
+        }
+
+
 class Section(Base):
     __tablename__ = 'section'
 
