@@ -1,5 +1,5 @@
 import os
-from models import Student, Info, Teacher, Guardian, Cohort, Class, Community, YearGroup, connect_db, get_curriculum_year
+from models import Student, Info, Teacher, Guardian, Cohort, Class, Community, YearGroup, Homework, connect_db, get_curriculum_year
 from flask import Flask, redirect, request, jsonify, make_response, abort
 from sqlalchemy import or_, and_
 from sqlalchemy.orm import Session
@@ -303,6 +303,32 @@ def get_yeargroups():
         '_client_id': client_id,
         '_count': len(yeargroups),
         'yeargroups': [yeargroup.json() for yeargroup in yeargroups]
+        })
+
+@app.route('/api/v2.0/homeworks', methods=['GET'])
+def get_homeworks():
+    homeworks = db.query(Homework). \
+            all()
+
+    return jsonify({
+        '_client_id': client_id,
+        '_count': len(homeworks),
+        'homeworks': [homework.json() for homework in homeworks]
+        })
+
+@app.route('/api/v2.0/homeworks/<int:homework_id>', methods=['GET'])
+def get_homework(homework_id):
+    homework = db.query(Homework). \
+            filter(Homework.id == homework_id). \
+            first()
+
+    if not homework:
+        abort(404)
+
+    return jsonify({
+        '_client_id': client_id,
+        '_count': 1,
+        'homeworks': homework.json()
         })
 
 @app.errorhandler(404)
