@@ -331,6 +331,41 @@ def get_homework(homework_id):
         'homeworks': homework.json()
         })
 
+@app.route('/api/v2.0/homeworks/stage/<stage>', methods=['GET'])
+def get_homeworks_by_stage(stage):
+    homeworks = db.query(Homework). \
+            filter(Homework.stage == stage). \
+            all()
+
+    return jsonify({
+        '_client_id': client_id,
+        '_count': len(homeworks),
+        'homeworks': [homework.json() for homework in homeworks]
+        })
+
+@app.route('/api/v2.0/homeworks/subject/<subject_id>', methods=['GET'])
+def get_homeworks_by_subject(subject_id):
+    homeworks = db.query(Homework). \
+            filter(Homework.subject_id == subject_id). \
+            all()
+
+    return jsonify({
+        '_client_id': client_id,
+        '_count': len(homeworks),
+        'homeworks': [homework.json() for homework in homeworks]
+        })
+
+@app.route('/api/v2.0/homeworks/class/<int:class_id>', methods=['GET'])
+def get_homeworks_by_class(class_id):
+    homeworks = db.query(Homework). \
+            all()
+
+    return jsonify({
+        '_client_id': client_id,
+        '_count': len(homeworks),
+        'homeworks': [homework.json() for homework in homeworks]
+        })
+
 @app.errorhandler(404)
 def not_found(error):
         return make_response(jsonify({'error': 'Not found'}), 404)
