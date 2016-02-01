@@ -1,5 +1,5 @@
 import os
-from models import Student, Info, Teacher, Guardian, Cohort, Class, Community, connect_db, get_curriculum_year
+from models import Student, Info, Teacher, Guardian, Cohort, Class, Community, YearGroup, connect_db, get_curriculum_year
 from flask import Flask, redirect, request, jsonify, make_response, abort
 from sqlalchemy import or_, and_
 from sqlalchemy.orm import Session
@@ -245,6 +245,17 @@ def get_community(community_id):
         '_client_id': client_id,
         '_count': 1,
         'communities': community.json(community_dates = True)
+        })
+
+@app.route('/api/v2.0/yeargroups', methods=['GET'])
+def get_yeargroups():
+    yeargroups = db.query(YearGroup). \
+            all()
+
+    return jsonify({
+        '_client_id': client_id,
+        '_count': len(yeargroups),
+        'yeargroups': [yeargroup.json() for yeargroup in yeargroups]
         })
 
 @app.errorhandler(404)
