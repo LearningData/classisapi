@@ -1,14 +1,16 @@
 import os
-from models import Student, Info, Teacher, Guardian, Cohort, Class, connect_db
+from models import Student, Info, Teacher, Guardian, Cohort, Class, Community, connect_db, get_curriculum_year
 from flask import Flask, redirect, request, jsonify, make_response, abort
 from sqlalchemy import or_, and_
 from sqlalchemy.orm import Session
 
 app = Flask(__name__)
 
-db = connect_db(os.environ.get('DB_URL'))
+db = connect_db(os.environ.get('DB_URL') + "?charset=utf8")
 
 client_id = 'demo'
+year = get_curriculum_year(db)
+
 
 @app.route('/')
 def index():
@@ -151,6 +153,19 @@ def get_class_by_course(course):
         '_client_id': client_id,
         '_count': len(classes),
         'classes': [teaching_class.json() for teaching_class in classes]
+        })
+
+@app.route('/api/v2.0/groups', methods=['GET'])
+def get_groups():
+    cohorts = db.query(Cohort). \
+            filter(Cohort.year == year). \
+            all()
+
+    return jsonify({
+        '_client_id': client_id,
+        '_count': len(cohorts),
+        '_academic_year': year,
+        'groups': [cohort.json() for cohort in cohorts]
         })
 
 @app.errorhandler(404)
