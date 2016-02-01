@@ -58,7 +58,7 @@ def get_students_pictures():
     return jsonify({
         '_client_id': client_id,
         '_count': 1,
-        'students': [student.get_pictures_json() for student in students]
+        'pictures': [student.get_pictures_json() for student in students]
         })
 
 @app.route('/api/v2.0/students/<int:student_id>/pictures', methods=['GET'])
@@ -99,6 +99,29 @@ def get_teacher(teacher_id):
         '_client_id': client_id,
         '_count': 1,
         'teachers': teacher.json()
+        })
+
+@app.route('/api/v2.0/teachers/pictures', methods=['GET'])
+def get_teachers_pictures():
+    teachers = db.query(Teacher). \
+            filter(and_(Teacher.nologin == 0, Teacher.username != 'administrator')). \
+            all()
+
+    return jsonify({
+        '_client_id': client_id,
+        '_count': 1,
+        'pictures': [teacher.get_pictures_json() for teacher in teachers]
+        })
+
+@app.route('/api/v2.0/teachers/<int:teacher_id>/pictures', methods=['GET'])
+def get_teacher_pictures(teacher_id):
+    teacher = db.query(Teacher). \
+            first()
+
+    return jsonify({
+        '_client_id': client_id,
+        '_count': 1,
+        'pictures': teacher.get_pictures_json(),
         })
 
 @app.route('/api/v2.0/guardians', methods=['GET'])
