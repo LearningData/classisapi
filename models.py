@@ -306,6 +306,29 @@ class Class(Base):
         }
 
 
+class Section(Base):
+    __tablename__ = 'section'
+
+    id = Column('id', Integer, primary_key=True)
+
+
+class YearGroup(Base):
+    __tablename__ = 'yeargroup'
+
+    id = Column('id', String, primary_key=True)
+    section_id = Column('section_id', Integer,  ForeignKey('section.id'), primary_key=True)
+
+    def json(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'sequence': self.sequence,
+            'section_id': self.section_id,
+            'section_name': self.section.name,
+            'section_sequence': self.section.sequence,
+        }
+
+
 def connect_db(db_url):
     engine = create_engine(db_url, convert_unicode=True)
     Base.prepare(engine, reflect=True)
