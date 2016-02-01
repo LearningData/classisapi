@@ -139,6 +139,24 @@ class CohidComid(Base):
     cohort_id = Column("cohort_id", Integer, ForeignKey("cohort.id"), primary_key=True)
     community_id = Column("community_id", Integer, ForeignKey("community.id"), primary_key=True)
 
+class ComidSid(Base):
+    __tablename__ = 'comidsid'
+
+    student_id = Column("student_id", Integer, ForeignKey("student.id"), primary_key=True)
+    community_id = Column("community_id", Integer, ForeignKey("community.id"), primary_key=True)
+
+    def is_active(self):
+        if self.leavingdate == None:
+            return True
+        return False
+
+    def json(self):
+        return {
+            'id': self.student_id,
+            'joining_date': str(self.joiningdate),
+            'leaving_date': str(self.leavingdate),
+            'active': self.is_active()
+        }
 
 class Community(Base):
     __tablename__ = 'community'
@@ -150,7 +168,15 @@ class Community(Base):
                         lazy='subquery',
                         )
 
-    def json(self):
+    students = relationship("ComidSid",
+                        foreign_keys='ComidSid.community_id',
+                        lazy='subquery',
+                        )
+    def json(self, community_dates = False):
+        students = [student.json() for student in self.students]
+        if not community_dates:
+            students = [student.student_id for student in self.students if student.is_active()]
+
         return {
             'id': self.id,
             'name': self.name,
@@ -158,6 +184,7 @@ class Community(Base):
             'year': str(self.year),
             'capacity': self.capacity,
             'detail': self.detail,
+            'students': students,
         }
 
 
