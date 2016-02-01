@@ -26,6 +26,11 @@ class Student(Base):
                         lazy='subquery',
                         )
 
+    communities = relationship("ComidSid",
+                        foreign_keys='ComidSid.student_id',
+                        lazy='subquery',
+                        )
+
     def is_active(self):
         if self.info.enrolstatus == 'C':
             return True
@@ -49,6 +54,7 @@ class Student(Base):
             'entry_date': str(self.info.entrydate),
             'leaving_date': str(self.info.leavingdate),
             'classes': [class_member.class_id for class_member in self.classes],
+            'communities': [community_member.community_id for community_member in self.communities if community_member.is_active()],
         }
 
 
@@ -170,10 +176,14 @@ class ComidSid(Base):
 
     def json(self):
         return {
-            'id': self.student_id,
+            'community_id': self.community_id,
+            'student_id': self.student_id,
             'joining_date': str(self.joiningdate),
             'leaving_date': str(self.leavingdate),
-            'active': self.is_active()
+            'active': self.is_active(),
+            'community_name': self.community.name,
+            'community_type': self.community.type,
+            'community_year': self.community.year,
         }
 
 
@@ -191,6 +201,7 @@ class Community(Base):
                         foreign_keys='ComidSid.community_id',
                         lazy='subquery',
                         )
+
     def json(self, community_dates = False):
         students = [student.json() for student in self.students]
         if not community_dates:
