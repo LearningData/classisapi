@@ -133,6 +133,34 @@ class Course(Base):
         }
 
 
+class CohidComid(Base):
+    __tablename__ = 'cohidcomid'
+
+    cohort_id = Column("cohort_id", Integer, ForeignKey("cohort.id"), primary_key=True)
+    community_id = Column("community_id", Integer, ForeignKey("community.id"), primary_key=True)
+
+
+class Community(Base):
+    __tablename__ = 'community'
+
+    id = Column('id', Integer, primary_key=True)
+
+    cohidcomids = relationship("CohidComid",
+                        foreign_keys='CohidComid.community_id',
+                        lazy='subquery',
+                        )
+
+    def json(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'type': self.type,
+            'year': str(self.year),
+            'capacity': self.capacity,
+            'detail': self.detail,
+        }
+
+
 class Cohort(Base):
     __tablename__ = 'cohort'
 
@@ -145,13 +173,22 @@ class Cohort(Base):
                         lazy='subquery',
                         )
 
+    communities = relationship("Community",
+                        secondary="cohidcomid",
+                        primaryjoin=id==CohidComid.cohort_id,
+                        secondaryjoin=Community.id==CohidComid.community_id,
+                        lazy='subquery',
+                        )
+
     def json(self):
         return {
             'id': self.id,
-            'course': self.course_id,
+            'course_id': self.course_id,
+            'course_name': self.course.name,
             'stage': self.stage,
             'year': self.year,
-            'classes': [teaching_class.json() for teaching_class in self.classes],
+            'classes': [teaching_class.id for teaching_class in self.classes],
+            'communities': [community.json() for community in self.communities],
         }
 
 
@@ -261,3 +298,11 @@ def get_title(title):
         '8': 'major'
         };
     return str(titles[str(title)])
+
+def get_curriculum_year(db):
+    curriculum_year = db.query(Community). \
+            filter(Community.name == "curriculum year"). \
+            group_by(Community.year). \
+            first()
+
+    return curriculum_year.year
