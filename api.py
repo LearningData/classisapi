@@ -48,6 +48,30 @@ def get_student(student_id):
         'students': student.json()
         })
 
+@app.route('/api/v2.0/students/pictures', methods=['GET'])
+def get_students_pictures():
+    students = db.query(Student). \
+            join(Student.info). \
+            filter(Info.enrolstatus == 'C'). \
+            all()
+
+    return jsonify({
+        '_client_id': client_id,
+        '_count': 1,
+        'students': [student.get_pictures_json() for student in students]
+        })
+
+@app.route('/api/v2.0/students/<int:student_id>/pictures', methods=['GET'])
+def get_student_pictures(student_id):
+    student = db.query(Student). \
+            first()
+
+    return jsonify({
+        '_client_id': client_id,
+        '_count': 1,
+        'pictures': student.get_pictures_json(),
+        })
+
 @app.route('/api/v2.0/teachers', methods=['GET'])
 def get_teachers():
     teachers = db.query(Teacher). \
