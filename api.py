@@ -7,6 +7,10 @@ from admin import db
 from database import init_db
 from views import *
 
+@app.errorhandler(401)
+def invalid_credentials(error):
+        return make_response(jsonify({'error': 'Invalid credentials'}), 401)
+
 @app.errorhandler(404)
 def not_found(error):
         return make_response(jsonify({'error': 'Not found'}), 404)
