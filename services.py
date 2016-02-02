@@ -1,4 +1,11 @@
+import string
+import random
+
+from datetime import datetime
+
 from models import Community, Student, Teacher
+from database import db_session
+from admin import User
 
 def get_title(title):
     titles = {'': '',
@@ -24,3 +31,47 @@ def get_curriculum_year(db):
 
 def get_user_picture(epfusername):
     return epfusername + ".jpeg"
+
+def generate_random_string(length=20):
+    chars = string.ascii_lowercase + string.digits
+    return ''.join(random.choice(chars) for _ in range(length))
+
+def generate_username():
+    username = generate_random_string(16)
+    if db_session.query(User).filter(User.user==token).first():
+        username = generate_username()
+    return username
+
+def generate_token():
+    token = generate_random_string(20)
+    if db_session.query(User).filter(User.token==token).first():
+        token = generate_token()
+    return token
+
+def create_api_user(school_id, email, username=''):
+    user = User()
+    user.user = username
+    if username == '':
+        user.user = generate_username()
+    user.token = generate_token()
+    user.school_id = school_id
+    user.email = email
+    db_session.add(user)
+    db_session.commit()
+
+    return user
+
+def create_school(name, client_id, host, db, port='', city=''):
+    school = School()
+    school.name = name
+    school.client_id = client_id
+    school.host = host
+    school.db = db
+    if port != '':
+        school.port = port
+    if city != '':
+        school.city = city
+    db_session.add(school)
+    db_session.commit()
+
+    return school

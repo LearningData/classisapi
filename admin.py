@@ -40,4 +40,4 @@ class User(Base):
 
     def __init__(self, user=None, token=None):
         self.user = user
-        self.token = email
+        self.token = token
