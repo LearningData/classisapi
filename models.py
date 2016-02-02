@@ -5,6 +5,26 @@ from sqlalchemy.orm import Session, relationship
 
 Base = automap_base()
 
+class User():
+    __tablename__ = 'user'
+
+    id = Column(Integer, primary_key=True)
+    user = Column(String(16), unique=True)
+    token = Column(String(20), unique=True)
+    email = Column(String(120))
+    status = Column(Integer)
+    school_id = Column(Integer, ForeignKey('School.id'))
+
+class School():
+    __tablename__ = 'school'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100))
+    host = Column(String(16))
+    port = Column(String(6))
+    db = Column(String(15), unique=True)
+    city = Column(String(150))
+
 
 class Student(Base):
     __tablename__ = 'student'
