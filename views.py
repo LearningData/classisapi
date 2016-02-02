@@ -3,8 +3,9 @@ from flask import make_response, abort, render_template, Response
 from sqlalchemy import or_, and_
 
 from app import app
-from auth import requires_auth, client_id
+from auth import requires_auth, restrict_administrator, client_id
 from models import *
+from services import create_school, create_api_user
 
 @app.before_request
 @requires_auth
@@ -16,6 +17,23 @@ def before_request(authenticated_user):
 @app.route('/')
 def index():
     return "This is Classis' API"
+
+@app.route('/register', methods=['GET'])
+@restrict_administrator
+def register_api_user():
+    school = create_school(
+        'School Name',
+        'client_id',
+        'host',
+        'db'
+    )
+    user = create_api_user(school.id, 'test@learningdata.ie')
+
+    return jsonify({
+        'user': user.user,
+        'token': user.token,
+        'client_id': school.client_id,
+    })
 
 @app.route('/students', methods=['GET'])
 def get_students():

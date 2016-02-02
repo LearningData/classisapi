@@ -38,7 +38,7 @@ def generate_random_string(length=20):
 
 def generate_username():
     username = generate_random_string(16)
-    if db_session.query(User).filter(User.user==token).first():
+    if db_session.query(User).filter(User.user==username).first():
         username = generate_username()
     return username
 
@@ -49,7 +49,9 @@ def generate_token():
     return token
 
 def create_api_user(school_id, email, username=''):
-    user = User()
+    user = db_session.query(User).filter(User.user==username).first()
+    if not user:
+        user = User()
     user.user = username
     if username == '':
         user.user = generate_username()
@@ -62,7 +64,9 @@ def create_api_user(school_id, email, username=''):
     return user
 
 def create_school(name, client_id, host, db, port='', city=''):
-    school = School()
+    school = db_session.query(School).filter(School.db==db).first()
+    if not school:
+        school = School()
     school.name = name
     school.client_id = client_id
     school.host = host
