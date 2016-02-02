@@ -357,8 +357,8 @@ class Class(Base):
     __tablename__ = 'class'
 
     id = Column('id', Integer, primary_key=True)
-    cohort_id = Column('cohort_id', Integer, ForeignKey('cohort.id'), primary_key=True)
-    subject_id = Column('subject_id', Integer, ForeignKey('subject.id'), primary_key=True)
+    cohort_id = Column('cohort_id', Integer, ForeignKey('cohort.id'))
+    subject_id = Column('subject_id', Integer, ForeignKey('subject.id'))
 
     students = relationship("CidSid",
                         foreign_keys='CidSid.class_id',
@@ -397,6 +397,9 @@ class Mark(Base):
 
     id = Column('id', Integer, primary_key=True)
     homework_id = Column('midlist', Integer, ForeignKey('homework.id'))
+    date_due = Column('entrydate', String)
+    date_set = Column('comment', String)
+    type = Column('marktype', String)
 
     classes = relationship("MidCid",
                          foreign_keys='MidCid.mark_id',
@@ -406,6 +409,14 @@ class Mark(Base):
         if self.marktype == 'hw':
             return True
         return False
+
+    def json(self):
+        return {
+            'id': self.id,
+            'date_due': str(self.date_due),
+            'date_set': str(self.date_set),
+            'type': self.type,
+        }
 
 
 class Homework(Base):
@@ -430,8 +441,9 @@ class Homework(Base):
             'component_id': self.component_id,
             'stage': self.stage,
             'author': self.author,
+            'def_name': self.def_name,
             'course_id': self.course_id,
-            'mark': [{'entry_date': str(mark.entrydate), 'type': str(mark.marktype)} for mark in self.marks],
+            'mark': [mark.json() for mark in self.marks],
             'classes': [class_group.class_id for mark in self.marks for class_group in mark.classes],
         }
 
