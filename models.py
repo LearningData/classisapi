@@ -1,30 +1,11 @@
+import os
+
 from sqlalchemy import create_engine, or_
 from sqlalchemy import Column, Integer, String, ForeignKey, Table
-from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session, relationship
+from sqlalchemy.ext.automap import automap_base
 
 Base = automap_base()
-
-class User():
-    __tablename__ = 'user'
-
-    id = Column(Integer, primary_key=True)
-    user = Column(String(16), unique=True)
-    token = Column(String(20), unique=True)
-    email = Column(String(120))
-    status = Column(Integer)
-    school_id = Column(Integer, ForeignKey('School.id'))
-
-class School():
-    __tablename__ = 'school'
-
-    id = Column(Integer, primary_key=True)
-    name = Column(String(100))
-    host = Column(String(16))
-    port = Column(String(6))
-    db = Column(String(15), unique=True)
-    city = Column(String(150))
-
 
 class Student(Base):
     __tablename__ = 'student'
@@ -291,7 +272,7 @@ class Cohort(Base):
     __tablename__ = 'cohort'
 
     id = Column("id", Integer, primary_key=True)
-    course_id = Column('course_id', Integer, ForeignKey('course.id'), primary_key=True)
+    course_id = Column('course_id', Integer, ForeignKey('course.id'))
 
     classes = relationship("Class",
                         foreign_keys="Class.cohort_id",
@@ -478,11 +459,11 @@ class YearGroup(Base):
     __tablename__ = 'yeargroup'
 
     id = Column('id', String, primary_key=True)
-    section_id = Column('section_id', Integer,  ForeignKey('section.id'), primary_key=True)
+    section_id = Column('section_id', Integer,  ForeignKey('section.id'))
 
     def json(self):
         return {
-            'id': self.id,
+            'id': str(self.id),
             'name': self.name,
             'sequence': self.sequence,
             'section_id': self.section_id,
@@ -490,34 +471,7 @@ class YearGroup(Base):
             'section_sequence': self.section.sequence,
         }
 
-
-def connect_db(db_url):
-    engine = create_engine(db_url, convert_unicode=True)
-    Base.prepare(engine, reflect=True)
-
-    return Session(engine)
-
-def get_title(title):
-    titles = {'': '',
-        '0': '',
-        '1': 'mr',
-        '2': 'mrs',
-        '3': 'srd',
-        '4': 'srada',
-        '5': 'miss',
-        '6': 'dr',
-        '7': 'ms',
-        '8': 'major'
-        };
-    return str(titles[str(title)])
-
-def get_curriculum_year(db):
-    curriculum_year = db.query(Community). \
-            filter(Community.name == "curriculum year"). \
-            group_by(Community.year). \
-            first()
-
-    return curriculum_year.year
-
-def get_user_picture(epfusername):
-    return epfusername + ".jpeg"
+engine = create_engine(os.environ.get('DB_URL') + "?charset=utf8",
+                       convert_unicode=True)
+Base.prepare(engine, reflect=True)
+db = Session(engine)

@@ -1,0 +1,34 @@
+from sqlalchemy import Column, Integer, String, ForeignKey, Table
+from sqlalchemy.orm import Session
+
+from database import Base, engine
+
+db = Session(engine)
+
+class School(Base):
+    __tablename__ = 'school'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100))
+    host = Column(String(16))
+    port = Column(String(6))
+    db = Column(String(15), unique=True)
+    city = Column(String(150))
+
+    def __init__(self, host=None, db=None):
+        self.host = host
+        self.db = db
+
+class User(Base):
+    __tablename__ = 'user'
+
+    id = Column(Integer, primary_key=True)
+    user = Column(String(16), unique=True)
+    token = Column(String(20), unique=True)
+    email = Column(String(120))
+    status = Column(Integer)
+    school_id = Column(Integer, ForeignKey('school.id'))
+
+    def __init__(self, user=None, token=None):
+        self.user = user
+        self.token = email
