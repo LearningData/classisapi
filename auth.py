@@ -17,15 +17,17 @@ def check_auth(user, token):
 def requires_auth(api_method):
     @wraps(api_method)
     def authenticate(*args, **kwargs):
-        auth = request.args
-        checked_user = check_auth(auth.get('user'), auth.get('token'))
+        checked_user = None
+        if(request.endpoint != 'index'):
+            auth = request.args
+            checked_user = check_auth(auth.get('user'), auth.get('token'))
 
-        if not auth or not checked_user:
-            abort(401)
+            if not auth or not checked_user:
+                abort(401)
 
-        checked_user.requests_count += 1
-        checked_user.last_request = datetime.datetime.now()
-        db_session.commit()
+            checked_user.requests_count += 1
+            checked_user.last_request = datetime.datetime.now()
+            db_session.commit()
 
         return api_method(checked_user, *args, **kwargs)
     return authenticate

@@ -10,7 +10,8 @@ from models import *
 @requires_auth
 def before_request(authenticated_user):
     global client_id
-    client_id = authenticated_user.school.client_id
+    if authenticated_user:
+        client_id = authenticated_user.school.client_id
 
 @app.route('/')
 def index():
