@@ -1,7 +1,8 @@
 import os
 import datetime
+from functools import wraps
 from models import Student, Info, Teacher, Guardian, Cohort, Class, Community, YearGroup, Homework, Mark, MidCid, connect_db, get_curriculum_year
-from flask import Flask, redirect, request, jsonify, make_response, abort
+from flask import Flask, redirect, request, jsonify, make_response, abort, Response
 from sqlalchemy import or_, and_
 from sqlalchemy.orm import Session
 
@@ -11,6 +12,24 @@ db = connect_db(os.environ.get('DB_URL') + "?charset=utf8")
 
 client_id = 'demo'
 year = get_curriculum_year(db)
+
+def check_auth(user, token):
+    return user == 'admin' and token == 'secret'
+
+def authenticate():
+    return Response(
+            'Could not verify your credentials.', 401,
+            {'WWW-Authenticate': 'Basic realm="Login Required"'}
+    )
+
+def requires_auth(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        auth = request.args
+        if not auth or not check_auth(auth.get('user'), auth.get('token')):
+            return authenticate()
+        return f(*args, **kwargs)
+    return decorated
 
 
 @app.route('/')
@@ -296,6 +315,7 @@ def get_community(community_id):
         })
 
 @app.route('/api/v2.0/yeargroups', methods=['GET'])
+@requires_auth
 def get_yeargroups():
     yeargroups = db.query(YearGroup). \
             all()
@@ -424,7 +444,6 @@ def get_homeworks_by_class(class_id):
 @app.errorhandler(404)
 def not_found(error):
         return make_response(jsonify({'error': 'Not found'}), 404)
-
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0',
