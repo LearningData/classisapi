@@ -1,5 +1,6 @@
 import os
-from models import Student, Info, Teacher, Guardian, Cohort, Class, Community, YearGroup, Homework, connect_db, get_curriculum_year
+import datetime
+from models import Student, Info, Teacher, Guardian, Cohort, Class, Community, YearGroup, Homework, Mark, MidCid, connect_db, get_curriculum_year
 from flask import Flask, redirect, request, jsonify, make_response, abort
 from sqlalchemy import or_, and_
 from sqlalchemy.orm import Session
@@ -304,6 +305,60 @@ def get_yeargroups():
         '_count': len(yeargroups),
         'yeargroups': [yeargroup.json() for yeargroup in yeargroups]
         })
+
+@app.route('/api/v2.0/homeworks', methods=['POST'])
+def create_homework():
+    if not request.json or not 'title' in request.json \
+            or not 'class_id' in request.json \
+            or not 'description' in request.json \
+            or not 'author_id' in request.json \
+            or not 'date_due' in request.json \
+            or not 'date_set' in request.json :
+        abort(400)
+
+    class_group = db.query(Class).get(request.json['class_id'])
+    author = db.query(Teacher).get(request.json['author_id'])
+
+    homework =  Homework()
+    homework.title = request.json['title']
+    homework.description = request.json['description']
+    homework.course_id = class_group.cohort.course_id
+    homework.subject_id = class_group.subject_id
+    homework.component_id = ''
+    homework.stage = class_group.cohort.stage
+    homework.def_name = 'raw score'
+    homework.author = author.username
+    homework.refs = ''
+    db.add(homework)
+    db.commit()
+
+    date_due = request.json['date_due']
+    date_set = request.json['date_set']
+    if date_due == '' or date_set == '':
+        date_due = date_set = datetime.date.today()
+
+    mark = Mark()
+    mark.date_due = date_due
+    mark.date_set = date_set
+    mark.topic = homework.title
+    mark.homework_id = homework.id
+    mark.def_name = 'raw score'
+    mark.type = 'hw'
+    mark.author = author.username
+    db.add(mark)
+    db.commit()
+
+    midcid = MidCid()
+    midcid.class_id = class_group.id
+    midcid.mark_id = mark.id
+    db.add(midcid)
+    db.commit()
+
+    return jsonify({
+        '_client_id': client_id,
+        '_count': 1,
+        'homeworks': homework.json()
+        }), 201
 
 @app.route('/api/v2.0/homeworks', methods=['GET'])
 def get_homeworks():
