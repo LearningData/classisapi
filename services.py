@@ -63,7 +63,7 @@ def create_api_user(school_id, email, username=''):
 
     return user
 
-def create_school(name, client_id, host, db, port='', city=''):
+def create_school(name, client_id, host, db, city='', port=''):
     school = db_session.query(School).filter(School.db==db).first()
     if not school:
         school = School()

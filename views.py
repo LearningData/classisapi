@@ -22,18 +22,19 @@ def index():
 @restrict_administrator
 def register_api_user():
     school = create_school(
-        'School Name',
-        'client_id',
-        'host',
-        'db'
+        request.args.get('school_name'),
+        request.args.get('client_id'),
+        request.args.get('host'),
+        request.args.get('db'),
+        request.args.get('city')
     )
-    user = create_api_user(school.id, 'test@learningdata.ie')
+    user = create_api_user(school.id, request.args.get('email'))
 
     return jsonify({
         'user': user.user,
         'token': user.token,
         'client_id': school.client_id,
-    })
+    }), 201
 
 @app.route('/students', methods=['GET'])
 def get_students():
