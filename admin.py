@@ -1,17 +1,16 @@
 import datetime
 
 from sqlalchemy import Column, Integer, String, ForeignKey, Table, Boolean, DateTime
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, relationship
 
 from database import Base, engine
-
-db = Session(engine)
 
 class School(Base):
     __tablename__ = 'school'
 
     id = Column(Integer, primary_key=True)
     name = Column(String(100))
+    client_id = Column(String(100))
     host = Column(String(16))
     port = Column(String(6), default='3306')
     db = Column(String(15), unique=True)
@@ -33,6 +32,11 @@ class User(Base):
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     last_request = Column(DateTime)
     requests_count = Column(Integer, default=0)
+
+    school = relationship("School",
+                        foreign_keys=school_id,
+                        lazy='subquery',
+                        )
 
     def __init__(self, user=None, token=None):
         self.user = user

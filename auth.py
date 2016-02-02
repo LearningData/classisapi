@@ -7,6 +7,8 @@ from sqlalchemy import or_, and_
 from admin import User
 from database import db_session
 
+client_id = None
+
 def check_auth(user, token):
     return db_session.query(User). \
             filter(and_(User.user == user, User.token == token)). \
@@ -25,5 +27,5 @@ def requires_auth(api_method):
         checked_user.last_request = datetime.datetime.now()
         db_session.commit()
 
-        return api_method(*args, **kwargs)
+        return api_method(checked_user, *args, **kwargs)
     return authenticate

@@ -3,7 +3,6 @@ import os
 from flask import make_response, jsonify
 
 from app import app
-from admin import db
 from database import init_db
 from views import *
 
