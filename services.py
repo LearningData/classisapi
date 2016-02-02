@@ -5,7 +5,7 @@ from datetime import datetime
 
 from models import Community, Student, Teacher
 from database import db_session
-from admin import User
+from admin import User, School
 
 def get_title(title):
     titles = {'': '',
