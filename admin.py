@@ -1,4 +1,6 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Table
+import datetime
+
+from sqlalchemy import Column, Integer, String, ForeignKey, Table, Boolean, DateTime
 from sqlalchemy.orm import Session
 
 from database import Base, engine
@@ -11,7 +13,7 @@ class School(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(100))
     host = Column(String(16))
-    port = Column(String(6))
+    port = Column(String(6), default='3306')
     db = Column(String(15), unique=True)
     city = Column(String(150))
 
@@ -25,9 +27,12 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     user = Column(String(16), unique=True)
     token = Column(String(20), unique=True)
-    email = Column(String(120))
-    status = Column(Integer)
     school_id = Column(Integer, ForeignKey('school.id'))
+    email = Column(String(120))
+    status = Column(Boolean, default=1)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    last_request = Column(DateTime)
+    requests_count = Column(Integer, default=0)
 
     def __init__(self, user=None, token=None):
         self.user = user
