@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Classis API</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,700,600' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Droid+Serif' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+</head>
+<body>
+  <div class="jumbotron">
+    <div class="navbar">
+        <div class="navbar-inner">
+            <div class="container-fluid">
+                <span href="/">
+                    <a href='http://www.learningdata.ie'>Classis API 2.0</a>
+                </span>
+            </div>
+        </div>
+    </div>
+  </div>
+  <div class="container">
+    <form class="pull-right">
+      <fieldset>
+        <div class="btn-group format-selection">
+          <button class="btn btn-primary" title="Configure your request">OPTIONS</button>
+        </div>
+        <div class="btn-group format-selection">
+          <button class="btn btn-primary" title="Make a GET request on the resource">GET</button>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+  <div class="container">
+    <div class="input-group">
+      <span class="input-group-addon" id="basic-addon1">GET</span>
+      <input type="text" class="form-control" placeholder="/" aria-describedby="basic-addon1">
+    </div>
+  </div>
+  <div class="container">
+      <pre>
+        Response
+        <div id="response">
+          
+        </div>
+      </pre>
+  </div>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+</body>
+</html>
