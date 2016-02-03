@@ -471,7 +471,8 @@ class YearGroup(Base):
             'section_sequence': self.section.sequence,
         }
 
-engine = create_engine(os.environ.get('DB_URL') + "?charset=utf8",
-                       convert_unicode=True)
-Base.prepare(engine, reflect=True)
-db = Session(engine)
+def connect_remote_db(db_url):
+    engine = create_engine(db_url + "?charset=utf8",
+                           convert_unicode=True)
+    Base.prepare(engine, reflect=True)
+    return Session(engine)
