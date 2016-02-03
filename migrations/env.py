@@ -1,8 +1,7 @@
-import os
-
 from __future__ import with_statement
+import os
 from alembic import context
-from sqlalchemy import engine_from_config, pool
+from sqlalchemy import engine_from_config, pool, create_engine
 from logging.config import fileConfig
 
 # this is the Alembic Config object, which provides
