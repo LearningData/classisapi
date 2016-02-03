@@ -27,19 +27,38 @@ def before_request(authenticated_user):
 def index():
     return "This is Classis' API"
 
-@app.route('/register', methods=['GET'])
+@app.route('/register', methods=['POST'])
 @restrict_administrator
 def register_api_user():
+    if not request.json or not 'school_name' in request.json \
+            or not 'client_id' in request.json \
+            or not 'host' in request.json \
+            or not 'db' in request.json:
+        abort(400)
+
+    epf_path = ''
+    if 'epf_path' in request.json:
+        epf_path = request.json['epf_path']
+    port = ''
+    if 'port' in request.json:
+        port = request.json['port']
+    city = ''
+    if 'city' in request.json:
+        city = request.json['city']
+    email = ''
+    if 'email' in request.json:
+        email = request.json['email']
+
     school = create_school(
-        request.args.get('school_name'),
-        request.args.get('client_id'),
-        request.args.get('host'),
-        request.args.get('db'),
-        request.args.get('epf_path'),
-        request.args.get('port'),
-        request.args.get('city')
+        request.json['school_name'],
+        request.json['client_id'],
+        request.json['host'],
+        request.json['db'],
+        epf_path,
+        port,
+        city
     )
-    user = create_api_user(school.id, request.args.get('email'))
+    user = create_api_user(school.id, email)
 
     return jsonify({
         'user': user.user,
