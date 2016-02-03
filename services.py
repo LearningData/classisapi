@@ -3,7 +3,6 @@ import random
 
 from datetime import datetime
 
-from models import Community, Student, Teacher
 from database import db_session
 from admin import User, School
 
@@ -20,14 +19,6 @@ def get_title(title):
         '8': 'major'
         };
     return str(titles[str(title)])
-
-def get_curriculum_year(db):
-    curriculum_year = db.query(Community). \
-            filter(Community.name == "curriculum year"). \
-            group_by(Community.year). \
-            first()
-
-    return curriculum_year.year
 
 def get_user_picture(epfusername):
     return epfusername + ".jpeg"

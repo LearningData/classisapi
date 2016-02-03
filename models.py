@@ -5,6 +5,8 @@ from sqlalchemy import Column, Integer, String, ForeignKey, Table
 from sqlalchemy.orm import Session, relationship
 from sqlalchemy.ext.automap import automap_base
 
+from services import get_title
+
 Base = automap_base()
 
 class Student(Base):
@@ -476,3 +478,11 @@ def connect_remote_db(db_url):
                            convert_unicode=True)
     Base.prepare(engine, reflect=True)
     return Session(engine)
+
+def get_curriculum_year(db):
+    curriculum_year = db.query(Community). \
+            filter(Community.name == "curriculum year"). \
+            group_by(Community.year). \
+            first()
+
+    return curriculum_year.year

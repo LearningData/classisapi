@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, redirect, request, jsonify
+from flask import Flask, redirect, request, jsonify, g
 from flask import make_response, abort, render_template, Response
 from sqlalchemy import or_, and_
 
@@ -23,12 +23,11 @@ def before_request(authenticated_user):
             db_url = 'mysql://' + os.environ.get('API_REMOTE_DB_AUTH', '') + \
                 '@' + school.host + ':' + school.port + '/' + school.db
             db = connect_remote_db(db_url)
-
-            if not db:
-                abort(400)
+        g.db = db
 
 @app.teardown_request
 def teardown_request(exception):
+    db = getattr(g, 'db', None)
     if db is not None:
         db.close()
 
