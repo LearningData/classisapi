@@ -5,7 +5,7 @@ from sqlalchemy import Column, Integer, String, ForeignKey, Table
 from sqlalchemy.orm import Session, relationship
 from sqlalchemy.ext.automap import automap_base
 
-from services import get_title
+from services import get_title, get_user_picture
 
 Base = automap_base()
 
