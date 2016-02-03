@@ -34,16 +34,10 @@ def requires_auth(api_method):
 
 def restrict_administrator(api_method):
     @wraps(api_method)
-    def authenticate(*args, **kwargs):
-        auth = request.args
-        checked_user = check_auth(auth.get('user'), auth.get('token'))
-
-        if not auth or not checked_user or checked_user.user != 'administrator':
+    @requires_auth
+    def is_administrator(checked_user, *args, **kwargs):
+        if checked_user.user != 'administrator':
             abort(401)
 
-        checked_user.requests_count += 1
-        checked_user.last_request = datetime.datetime.now()
-        db_session.commit()
-
         return api_method(*args, **kwargs)
-    return authenticate
+    return is_administrator
