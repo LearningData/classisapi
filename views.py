@@ -27,6 +27,11 @@ def before_request(authenticated_user):
             if not db:
                 abort(400)
 
+@app.teardown_request
+def teardown_request(exception):
+    if db is not None:
+        db.close()
+
 @app.route('/')
 def index():
     return "This is Classis' API"
