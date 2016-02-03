@@ -18,9 +18,10 @@ def before_request(authenticated_user):
         client_id = authenticated_user.school.client_id
         school = authenticated_user.school
 
-        db_url = 'mysql://' + os.environ.get('API_REMOTE_DB_AUTH', '') + \
-            '@' + school.host + ':' + school.port + '/' + school.db
-        db = connect_remote_db(db_url)
+        if authenticated_user.user != 'administrator':
+            db_url = 'mysql://' + os.environ.get('API_REMOTE_DB_AUTH', '') + \
+                '@' + school.host + ':' + school.port + '/' + school.db
+            db = connect_remote_db(db_url)
 
 @app.route('/')
 def index():
@@ -34,6 +35,8 @@ def register_api_user():
         request.args.get('client_id'),
         request.args.get('host'),
         request.args.get('db'),
+        request.args.get('epf_path'),
+        request.args.get('port'),
         request.args.get('city')
     )
     user = create_api_user(school.id, request.args.get('email'))
