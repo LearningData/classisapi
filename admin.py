@@ -15,6 +15,7 @@ class School(Base):
     port = Column(String(6), default='3306')
     db = Column(String(15), unique=True)
     city = Column(String(150))
+    eportfolio_path = Column(String(300))
 
     def __init__(self, host=None, db=None):
         self.host = host
