@@ -24,6 +24,9 @@ def before_request(authenticated_user):
                 '@' + school.host + ':' + school.port + '/' + school.db
             db = connect_remote_db(db_url)
 
+        if not db:
+            abort(400)
+
 @app.route('/')
 def index():
     return "This is Classis' API"
