@@ -33,7 +33,7 @@ def teardown_request(exception):
 
 @app.route('/')
 def index():
-    return "This is Classis' API"
+    return render_template('index.html')
 
 @app.route('/register', methods=['POST'])
 @restrict_administrator
