@@ -24,12 +24,23 @@ def get_title(title):
 
 def get_user_picture(epfusername, images_path = '/tmp'):
     encoded_image = None
-    file = images_path + '/' + epfusername + '.jpeg'
+    file_name = epfusername + '.jpeg'
+
+    image = {}
+
+    file = images_path + '/' + file_name
     if os.path.exists(file):
         with open(file, 'rb') as image:
             encoded_image = base64.b64encode(image.read())
+    else:
+        file_name = None
 
-    return encoded_image
+    image = {
+        'base64': encoded_image,
+        'name': file_name
+    }
+
+    return image
 
 def generate_random_string(length=20):
     chars = string.ascii_lowercase + string.digits

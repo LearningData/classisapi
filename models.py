@@ -39,15 +39,18 @@ class Student(Base):
             return True
         return False
 
-    def get_picture(self):
+    def get_picture(self, client_id = ''):
         if self.info.epfusername != '':
-            return get_user_picture(self.info.epfusername)
+            return get_user_picture(self.info.epfusername, '/tmp/' + client_id)
         return
 
-    def get_pictures_json(self):
+    def get_pictures_json(self, client_id):
+        image = self.get_picture(client_id)
+
         return {
             'student_id': self.id,
-            'picture': self.get_picture(),
+            'file_name': image['name'],
+            'picture': image['base64'],
         }
 
     def json(self):
@@ -98,15 +101,18 @@ class Teacher(Base):
             return False
         return True
 
-    def get_picture(self):
+    def get_picture(self, client_id = ''):
         if self.epfusername != '':
-            return get_user_picture(self.epfusername)
+            return get_user_picture(self.epfusername, '/tmp/' + client_id)
         return
 
-    def get_pictures_json(self):
+    def get_pictures_json(self, client_id):
+        image = self.get_picture(client_id)
+
         return {
             'teacher_id': self.id,
-            'picture': self.get_picture(),
+            'file_name': image['name'],
+            'picture': image['base64'],
         }
 
     def json(self):
