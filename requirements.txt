@@ -17,3 +17,4 @@ flask-httpauth==2.7.0
 flask_sqlalchemy==2.1.0
 alembic==0.8.4
 Fabric==1.10.2
+PyYAML==3.11.0
