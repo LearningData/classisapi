@@ -1,5 +1,6 @@
 import os
 
+from flask import abort
 from sqlalchemy import create_engine, or_
 from sqlalchemy import Column, Integer, String, ForeignKey, Table
 from sqlalchemy.orm import Session, relationship
@@ -480,10 +481,13 @@ class YearGroup(Base):
         }
 
 def connect_remote_db(db_url):
-    engine = create_engine(db_url + "?charset=utf8",
-                           convert_unicode=True)
-    Base.prepare(engine, reflect=True)
-    return Session(engine)
+    try:
+        engine = create_engine(db_url + "?charset=utf8",
+                               convert_unicode=True)
+        Base.prepare(engine, reflect=True)
+        return Session(engine)
+    except:
+        abort(400)
 
 def get_curriculum_year(db):
     curriculum_year = db.query(Community). \
