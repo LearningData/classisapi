@@ -7,7 +7,7 @@ from sqlalchemy import or_, and_
 from app import app
 from auth import requires_auth, restrict_administrator, client_id
 from models import *
-from services import create_school, create_api_user
+from services import create_school, create_api_user, get_pictures
 
 @app.before_request
 @requires_auth
@@ -118,6 +118,7 @@ def get_students_pictures():
 @app.route('/students/<int:student_id>/pictures', methods=['GET'])
 def get_student_pictures(student_id):
     student = db.query(Student). \
+            filter(Student.id == student_id). \
             first()
 
     return jsonify({
@@ -170,6 +171,7 @@ def get_teachers_pictures():
 @app.route('/teachers/<int:teacher_id>/pictures', methods=['GET'])
 def get_teacher_pictures(teacher_id):
     teacher = db.query(Teacher). \
+            filter(Teacher.id == teacher_id). \
             first()
 
     return jsonify({
