@@ -111,19 +111,20 @@ def get_students_pictures():
 
     return jsonify({
         '_client_id': client_id,
-        '_count': 1,
-        'pictures': [student.get_pictures_json() for student in students]
+        '_count': len(students),
+        'pictures': [student.get_pictures_json(client_id) for student in students]
         })
 
 @app.route('/students/<int:student_id>/pictures', methods=['GET'])
 def get_student_pictures(student_id):
     student = db.query(Student). \
+            filter(Student.id == student_id). \
             first()
 
     return jsonify({
         '_client_id': client_id,
         '_count': 1,
-        'pictures': student.get_pictures_json(),
+        'pictures': student.get_pictures_json(client_id),
         })
 
 @app.route('/teachers', methods=['GET'])
@@ -163,19 +164,20 @@ def get_teachers_pictures():
 
     return jsonify({
         '_client_id': client_id,
-        '_count': 1,
-        'pictures': [teacher.get_pictures_json() for teacher in teachers]
+        '_count': len(teachers),
+        'pictures': [teacher.get_pictures_json(client_id) for teacher in teachers]
         })
 
 @app.route('/teachers/<int:teacher_id>/pictures', methods=['GET'])
 def get_teacher_pictures(teacher_id):
     teacher = db.query(Teacher). \
+            filter(Teacher.id == teacher_id). \
             first()
 
     return jsonify({
         '_client_id': client_id,
         '_count': 1,
-        'pictures': teacher.get_pictures_json(),
+        'pictures': teacher.get_pictures_json(client_id),
         })
 
 @app.route('/guardians', methods=['GET'])

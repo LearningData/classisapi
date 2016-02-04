@@ -1,0 +1,6 @@
+clientid1:
+    host: user@host:port
+    dir_icons: /path/to/epfdirectory/icons
+clientid2:
+    host: user@host:port
+    dir_icons: /path/to/epfdirectory/icons
