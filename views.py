@@ -7,7 +7,7 @@ from sqlalchemy import or_, and_
 from app import app
 from auth import requires_auth, restrict_administrator, client_id
 from models import *
-from services import create_school, create_api_user, get_pictures
+from services import create_school, create_api_user
 
 @app.before_request
 @requires_auth
@@ -111,7 +111,7 @@ def get_students_pictures():
 
     return jsonify({
         '_client_id': client_id,
-        '_count': 1,
+        '_count': len(students),
         'pictures': [student.get_pictures_json() for student in students]
         })
 
@@ -164,7 +164,7 @@ def get_teachers_pictures():
 
     return jsonify({
         '_client_id': client_id,
-        '_count': 1,
+        '_count': len(teachers),
         'pictures': [teacher.get_pictures_json() for teacher in teachers]
         })
 

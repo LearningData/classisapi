@@ -1,6 +1,6 @@
+import os
 import string
 import random
-import os
 import base64
 
 from datetime import datetime
@@ -22,20 +22,14 @@ def get_title(title):
         };
     return str(titles[str(title)])
 
-
-def get_pictures(users, images_path):
-    images = []
-
-    for user in users:
-        file = images_path + '/' + user + '.jpeg'
+def get_user_picture(epfusername, images_path = '/tmp'):
+    encoded_image = None
+    file = images_path + '/' + epfusername + '.jpeg'
+    if os.path.exists(file):
         with open(file, 'rb') as image:
             encoded_image = base64.b64encode(image.read())
-            images.append(encoded_image)
 
-    return images
-
-def get_user_picture(epfusername):
-    return epfusername + ".jpeg"
+    return encoded_image
 
 def generate_random_string(length=20):
     chars = string.ascii_lowercase + string.digits

@@ -5,7 +5,7 @@ from sqlalchemy import Column, Integer, String, ForeignKey, Table
 from sqlalchemy.orm import Session, relationship
 from sqlalchemy.ext.automap import automap_base
 
-from services import get_title, get_user_picture, get_pictures
+from services import get_title, get_user_picture
 
 Base = automap_base()
 
@@ -41,7 +41,7 @@ class Student(Base):
 
     def get_picture(self):
         if self.info.epfusername != '':
-            return get_pictures([self.info.epfusername])[0]
+            return get_user_picture(self.info.epfusername)
         return
 
     def get_pictures_json(self):
