@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, redirect, request, jsonify, g
+from flask import Flask, redirect, request, jsonify, g, url_for
 from flask import make_response, abort, render_template, Response
 from sqlalchemy import or_, and_
 
@@ -33,7 +33,27 @@ def teardown_request(exception):
 
 @app.route('/')
 def index():
+    """Graph API"""
     return render_template('index.html')
+
+@app.route('/help', methods = ['GET'])
+def help():
+    import urllib
+    func_list = {}
+    for rule in app.url_map.iter_rules():
+        if rule.endpoint != 'static':
+            methods = urllib.unquote(','.join(rule.methods))
+            url = urllib.unquote(rule.rule). \
+                    replace('>', ']'). \
+                    replace('<', '[')
+
+            func_list[rule.endpoint] = {
+                'url': url,
+                'info': app.view_functions[rule.endpoint].__doc__,
+                'methods': methods,
+            }
+
+    return jsonify(func_list)
 
 @app.route('/register', methods=['POST'])
 @restrict_administrator
