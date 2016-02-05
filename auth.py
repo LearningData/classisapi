@@ -18,7 +18,7 @@ def requires_auth(api_method):
     @wraps(api_method)
     def authenticate(*args, **kwargs):
         checked_user = None
-        if(request.endpoint != 'index'):
+        if(request.endpoint != 'index' and request.endpoint != 'help'):
             auth = request.args
             checked_user = check_auth(auth.get('user'), auth.get('token'))
 
