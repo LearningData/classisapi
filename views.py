@@ -33,12 +33,16 @@ def teardown_request(exception):
 
 @app.route('/')
 def index():
-    """Graph API"""
+    """Graph API."""
+
     return render_template('index.html')
 
 @app.route('/help', methods = ['GET'])
 def help():
+    """List with all available API endpoints."""
+
     import urllib
+
     func_list = {}
     for rule in app.url_map.iter_rules():
         if rule.endpoint != 'static':
@@ -58,6 +62,9 @@ def help():
 @app.route('/register', methods=['POST'])
 @restrict_administrator
 def register_api_user():
+    """Register a user. Restricted to administrator. """ \
+    """Requires school_name, client_id, host and db in JSON format."""
+
     if not request.json or not 'school_name' in request.json \
             or not 'client_id' in request.json \
             or not 'host' in request.json \
@@ -96,6 +103,8 @@ def register_api_user():
 
 @app.route('/students', methods=['GET'])
 def get_students():
+    """List with all current or previous students."""
+
     students = db.query(Student). \
             join(Student.info). \
             filter(or_(Info.enrolstatus == 'C', Info.enrolstatus == 'P')). \
@@ -109,6 +118,8 @@ def get_students():
 
 @app.route('/students/<int:student_id>', methods=['GET'])
 def get_student(student_id):
+    """List information for a specific student."""
+
     student = db.query(Student). \
             filter(Student.id == student_id). \
             first()
@@ -124,6 +135,8 @@ def get_student(student_id):
 
 @app.route('/students/pictures', methods=['GET'])
 def get_students_pictures():
+    """Get pictures for all current students."""
+
     students = db.query(Student). \
             join(Student.info). \
             filter(Info.enrolstatus == 'C'). \
@@ -137,6 +150,8 @@ def get_students_pictures():
 
 @app.route('/students/<int:student_id>/pictures', methods=['GET'])
 def get_student_pictures(student_id):
+    """Get picture for a specific student."""
+
     student = db.query(Student). \
             filter(Student.id == student_id). \
             first()
@@ -149,6 +164,8 @@ def get_student_pictures(student_id):
 
 @app.route('/teachers', methods=['GET'])
 def get_teachers():
+    """Get all teachers with roles teacher and admin."""
+
     teachers = db.query(Teacher). \
             filter(or_(Teacher.role == 'teacher', Teacher.role == 'admin')). \
             filter(Teacher.username != 'administrator'). \
@@ -162,6 +179,8 @@ def get_teachers():
 
 @app.route('/teachers/<int:teacher_id>', methods=['GET'])
 def get_teacher(teacher_id):
+    """Get a teacher info."""
+
     teacher = db.query(Teacher). \
             filter(Teacher.id == teacher_id). \
             filter(Teacher.username != 'administrator'). \
@@ -178,6 +197,8 @@ def get_teacher(teacher_id):
 
 @app.route('/teachers/pictures', methods=['GET'])
 def get_teachers_pictures():
+    """Get pictures for all current teachers."""
+
     teachers = db.query(Teacher). \
             filter(and_(Teacher.nologin == 0, Teacher.username != 'administrator')). \
             all()
@@ -190,6 +211,8 @@ def get_teachers_pictures():
 
 @app.route('/teachers/<int:teacher_id>/pictures', methods=['GET'])
 def get_teacher_pictures(teacher_id):
+    """Get a teacher's profile picture."""
+
     teacher = db.query(Teacher). \
             filter(Teacher.id == teacher_id). \
             first()
@@ -202,6 +225,8 @@ def get_teacher_pictures(teacher_id):
 
 @app.route('/guardians', methods=['GET'])
 def get_guardians():
+    """Get all guardians."""
+
     guardians = db.query(Guardian). \
             all()
 
@@ -213,6 +238,8 @@ def get_guardians():
 
 @app.route('/guardians/<int:guardian_id>', methods=['GET'])
 def get_guardian(guardian_id):
+    """Get a guardian's information."""
+
     guardian = db.query(Guardian). \
             filter(Guardian.id == guardian_id). \
             first()
@@ -228,6 +255,8 @@ def get_guardian(guardian_id):
 
 @app.route('/classes', methods=['GET'])
 def get_classes():
+    """Get all available classes."""
+
     classes = db.query(Class). \
             all()
 
@@ -239,6 +268,8 @@ def get_classes():
 
 @app.route('/classes/<int:class_id>', methods=['GET'])
 def get_class(class_id):
+    """Get a class by class_id."""
+
     teaching_class = db.query(Class). \
             filter(Class.id == class_id). \
             first()
@@ -254,6 +285,8 @@ def get_class(class_id):
 
 @app.route('/classes/year/<int:year>', methods=['GET'])
 def get_class_by_year(year):
+    """Get a class info by the academic year."""
+
     classes = db.query(Class). \
             join(Class.cohort).\
             filter(Cohort.year == year). \
@@ -267,6 +300,8 @@ def get_class_by_year(year):
 
 @app.route('/classes/course/<course>', methods=['GET'])
 def get_class_by_course(course):
+    """Get a class info by the course_id."""
+
     classes = db.query(Class). \
             join(Class.cohort).\
             filter(Cohort.course_id == course). \
@@ -280,19 +315,21 @@ def get_class_by_course(course):
 
 @app.route('/cohorts', methods=['GET'])
 def get_cohorts():
+    """Get a complete list of cohorts."""
+
     cohorts = db.query(Cohort). \
-            filter(Cohort.year == year). \
             all()
 
     return jsonify({
         '_client_id': client_id,
         '_count': len(cohorts),
-        '_academic_year': year,
         'cohorts': [cohort.json() for cohort in cohorts]
         })
 
 @app.route('/cohorts/<int:cohort_id>', methods=['GET'])
 def get_cohort(cohort_id):
+    """Get a cohort by the cohort_id."""
+
     cohort = db.query(Cohort). \
             filter(Cohort.id == cohort_id). \
             first()
@@ -308,6 +345,8 @@ def get_cohort(cohort_id):
 
 @app.route('/cohorts/year/<int:year>', methods=['GET'])
 def get_cohorts_by_year(year):
+    """Get cohorts by the academic year."""
+
     cohorts = db.query(Cohort). \
             filter(Cohort.year == year). \
             all()
@@ -321,6 +360,8 @@ def get_cohorts_by_year(year):
 
 @app.route('/cohorts/course/<course>', methods=['GET'])
 def get_cohorts_by_course(course):
+    """Get cohorts by the course_id."""
+
     cohorts = db.query(Cohort). \
             filter(and_(Cohort.year == year, Cohort.course_id == course)). \
             all()
@@ -334,6 +375,8 @@ def get_cohorts_by_course(course):
 
 @app.route('/communities', methods=['GET'])
 def get_communities():
+    """Get all available communities."""
+
     communities = db.query(Community). \
             all()
 
@@ -345,6 +388,8 @@ def get_communities():
 
 @app.route('/communities/type/<type>', methods=['GET'])
 def get_communities_by_type(type):
+    """Get communities by their type: year, form, etc."""
+
     communities = db.query(Community). \
             filter(Community.type == type). \
             all()
@@ -357,6 +402,8 @@ def get_communities_by_type(type):
 
 @app.route('/communities/<int:community_id>', methods=['GET'])
 def get_community(community_id):
+    """Get a community by its id."""
+
     community = db.query(Community). \
             filter(Community.id == community_id). \
             first()
@@ -372,6 +419,8 @@ def get_community(community_id):
 
 @app.route('/yeargroups', methods=['GET'])
 def get_yeargroups():
+    """Get a list with the yeargroups."""
+
     yeargroups = db.query(YearGroup). \
             all()
 
@@ -383,6 +432,10 @@ def get_yeargroups():
 
 @app.route('/homeworks', methods=['POST'])
 def create_homework():
+    """Post a homework for a class. """ \
+    """Requires title, class_id, description, author_id, """ \
+    """date_due and date_set in JSON format"""
+
     if not request.json or not 'title' in request.json \
             or not 'class_id' in request.json \
             or not 'description' in request.json \
@@ -437,6 +490,8 @@ def create_homework():
 
 @app.route('/homeworks', methods=['GET'])
 def get_homeworks():
+    """Get all the available homeworks."""
+
     homeworks = db.query(Homework). \
             all()
 
@@ -448,6 +503,8 @@ def get_homeworks():
 
 @app.route('/homeworks/<int:homework_id>', methods=['GET'])
 def get_homework(homework_id):
+    """Get a homework by its id."""
+
     homework = db.query(Homework). \
             filter(Homework.id == homework_id). \
             first()
@@ -463,6 +520,8 @@ def get_homework(homework_id):
 
 @app.route('/homeworks/stage/<stage>', methods=['GET'])
 def get_homeworks_by_stage(stage):
+    """Get all homeworks for a particular stage."""
+
     homeworks = db.query(Homework). \
             filter(Homework.stage == stage). \
             all()
@@ -475,6 +534,8 @@ def get_homeworks_by_stage(stage):
 
 @app.route('/homeworks/subject/<subject_id>', methods=['GET'])
 def get_homeworks_by_subject(subject_id):
+    """Get all homeworks for a subject."""
+
     homeworks = db.query(Homework). \
             filter(Homework.subject_id == subject_id). \
             all()
@@ -487,6 +548,8 @@ def get_homeworks_by_subject(subject_id):
 
 @app.route('/homeworks/class/<int:class_id>', methods=['GET'])
 def get_homeworks_by_class(class_id):
+    """Get all homeworks for a class."""
+
     homeworks = db.query(Homework). \
             all()
 
