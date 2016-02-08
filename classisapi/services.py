@@ -5,6 +5,7 @@ import base64
 
 from datetime import datetime
 
+from classisapi import config
 from database import db_session
 from admin import User, School
 
@@ -13,13 +14,13 @@ def generate_random_string(length=20):
     return ''.join(random.choice(chars) for _ in range(length))
 
 def generate_username():
-    username = generate_random_string(16)
+    username = generate_random_string(config['USERNAME_LENGTH'])
     if db_session.query(User).filter(User.user==username).first():
         username = generate_username()
     return username
 
 def generate_token():
-    token = generate_random_string(20)
+    token = generate_random_string(config['TOKEN_LENGTH'])
     if db_session.query(User).filter(User.token==token).first():
         token = generate_token()
     return token

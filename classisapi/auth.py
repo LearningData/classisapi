@@ -4,6 +4,7 @@ from functools import wraps
 from flask import Response, request, abort
 from sqlalchemy import or_, and_
 
+from classisapi import config
 from admin import User
 from database import db_session
 
@@ -19,7 +20,7 @@ def requires_auth(api_method):
     def authenticate(*args, **kwargs):
         checked_user = None
         if(request.endpoint != 'index' and request.endpoint != 'help'
-                and 'assets' not in request.path):
+                and config['STATIC_URL'] not in request.path):
             auth = request.args
             checked_user = check_auth(auth.get('user'), auth.get('token'))
 
@@ -37,7 +38,7 @@ def restrict_administrator(api_method):
     @wraps(api_method)
     @requires_auth
     def is_administrator(checked_user, *args, **kwargs):
-        if checked_user.user != 'administrator':
+        if checked_user.user != config['ADMINISTRATOR_NAME']:
             abort(401)
 
         return api_method(*args, **kwargs)

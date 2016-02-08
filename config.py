@@ -37,4 +37,4 @@ TOKEN_LENGTH = os.environ.get('API_TOKEN_LENGTH', 20)
 REMOTE_DB_AUTH = os.environ.get('API_REMOTE_DB_AUTH', 'classisapi:password')
 
 #Static url path to be shown for static files
-STATIC_URL = os.environ.get('API_STATIC_URL', '/assets')
+#STATIC_URL = os.environ.get('API_STATIC_URL', '/assets')

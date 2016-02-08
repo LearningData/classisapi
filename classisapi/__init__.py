@@ -10,6 +10,6 @@ import classisapi.views
 from classisapi.database import init_db
 
 import logging
-logging.basicConfig(filename='/tmp/classisapi.log',level=logging.DEBUG)
+logging.basicConfig(filename=config['LOG_FILE'],level=logging.DEBUG)
 
 init_db()

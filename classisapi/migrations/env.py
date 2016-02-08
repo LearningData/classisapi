@@ -51,7 +51,12 @@ def run_migrations_online():
     and associate a connection with the context.
 
     """
-    url = os.environ.get('API_DB_URL', None)
+    import sys
+
+    sys.path.append(os.path.join(os.getcwd(), '..'))
+    from classisapi import config as api_config
+
+    url = api_config['DB_URL']
     if url:
         connectable = create_engine(url)
     else:
