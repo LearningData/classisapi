@@ -10,11 +10,17 @@
   <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,700,600' rel='stylesheet' type='text/css'>
   <link href='https://fonts.googleapis.com/css?family=Droid+Serif' rel='stylesheet' type='text/css'>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
   <nav class="navbar navbar-default">
     <div class="container">
-        <a href='/'>Classis API 2.0</a>
+      <div class="row">
+        <a href="/">
+          <img class="logo" src="{{ url_for('static', filename='img/logo.png') }}" alt="Classis API 2.0">
+          API v2.0
+        </a>
+      </div>
     </div>
   </nav>
   <div class="container">
@@ -78,116 +84,6 @@
   </div>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-  <script>
-    function change_method() {
-      var method = $('.method').find(':selected').val();
-      if(method == 'post') {
-        $('.post-json').show();
-        $('.get').hide();
-        $('.post').show();
-        $('#request').html('POST');
-      } else {
-        $('.post-json').hide();
-        $('.post').hide();
-        $('.get').show();
-        $('#request').html('GET');
-      }
-    }
-    function display_auth() {
-      $('.auth').toggle();
-    }
-    function get_auth() {
-      var user = $('.user').val();
-      var token = $('.token').val();
-      if(user != '' && token != '') {
-        return 'user=' + user + '&token=' + token
-      }
-      return ''
-    }
-    function display_response(jqXHR) {
-      console.log(jqXHR)
-      var headers = jqXHR.getAllResponseHeaders();
-      $('#headers').html(headers);
-      try {
-        var response = JSON.parse(jqXHR.responseText);
-        response = JSON.stringify(response, null, 4);
-        $('#response').html(response);
-      } catch(e) {
-        console.log(e);
-      }
-    }
-    function get_query() {
-      var auth = get_auth();
-      var url = $('.url').val()
-      if(url != '') {
-        $('.error').hide();
-        $('.success').hide();
-        $('.loading').toggle();
-        $.getJSON(url + '?' + auth, function() {
-          console.log('success');
-        })
-        .done(function(data, status, jqXHR) {
-          $('#request').css({'color': 'green'})
-          display_response(jqXHR);
-        })
-        .fail(function(jqXHR, textStatus, errorThrown) {
-          $('#request').css({'color': 'red'})
-          display_response(jqXHR);
-        })
-        .always(function(resp, status) {
-          $('.loading').toggle();
-          if(status == 'success') {
-            $('.error').hide();
-            $('.success').show();
-          } else {
-            $('.success').hide();
-            $('.error').show();
-          }
-        });
-      } else {
-        alert('Please enter a valid URL!');
-      }
-    }
-    function post_query() {
-      var auth = get_auth();
-      var url = $('.url').val()
-      var json = $('.json').val()
-      if(url != '' && json !='') {
-        $('.error').hide();
-        $('.success').hide();
-        $('.loading').toggle();
-        $.ajax({
-          url: url + '?' + auth,
-          type: 'POST',
-          data: json,
-          contentType: 'application/json; charset=utf-8',
-          dataType: 'json',
-          success: function(data) {
-            console.log(data);
-          }
-        })
-        .done(function(data, status, jqXHR) {
-          $('#request').css({'color': 'green'})
-          display_response(jqXHR);
-        })
-        .fail(function(jqXHR, textStatus, errorThrown) {
-          $('#request').css({'color': 'red'})
-          display_response(jqXHR);
-        })
-        .always(function(resp, status) {
-          $('.loading').toggle();
-          if(status == 'success') {
-            $('.error').hide();
-            $('.success').show();
-          } else {
-            $('.success').hide();
-            $('.error').show();
-          }
-        });
-      } else {
-        alert('Please enter a valid URL and/or JSON!');
-      }
-    }
-  </script>
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 </body>
 </html>

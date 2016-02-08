@@ -4,9 +4,9 @@ from flask import Flask, redirect, request, jsonify, g, url_for
 from flask import make_response, abort, render_template, Response
 from sqlalchemy import or_, and_
 
-from app import app
+from classisapi import app
+from classis.models import *
 from auth import requires_auth, restrict_administrator, client_id
-from models import *
 from services import create_school, create_api_user
 
 @app.before_request
@@ -30,6 +30,22 @@ def teardown_request(exception):
     db = getattr(g, 'db', None)
     if db is not None:
         db.close()
+
+@app.errorhandler(400)
+def invalid_request(error):
+        return make_response(jsonify({'error': 'Invalid request'}), 400)
+
+@app.errorhandler(401)
+def invalid_credentials(error):
+        return make_response(jsonify({'error': 'Invalid credentials'}), 401)
+
+@app.errorhandler(403)
+def forbidden(error):
+        return make_response(jsonify({'error': 'Forbidden'}), 403)
+
+@app.errorhandler(404)
+def not_found(error):
+        return make_response(jsonify({'error': 'Not found'}), 404)
 
 @app.route('/')
 def index():
