@@ -4,7 +4,7 @@ from flask import Flask, redirect, request, jsonify, g, url_for
 from flask import make_response, abort, render_template, Response
 from sqlalchemy import or_, and_
 
-from classisapi import app
+from classisapi import app, config
 from classis.models import *
 from auth import requires_auth, restrict_administrator, client_id
 from services import create_school, create_api_user
