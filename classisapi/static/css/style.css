@@ -1,0 +1,25 @@
+.navbar {
+	background-color: #34495e;
+	border-color: #34495e;
+	color: #fff;
+	padding: 10px 0;
+	border-radius: 0 !important;
+}
+a, a:hover {
+	color: #fff;
+	font-weight: 600;
+	font-size: 1.8em;
+	text-decoration: none;
+}
+.logo {
+	vertical-align: bottom;
+}
+.btn-primary {
+	background-color: #4d5f72;
+	border-color: #4d5f72;
+	color: #cad5da;
+}
+.btn-primary:hover, .btn-primary:focus {
+	background-color: #4d5f72;
+	border-color: #4d5f72;
+}

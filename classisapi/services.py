@@ -5,55 +5,22 @@ import base64
 
 from datetime import datetime
 
+from classisapi import config
 from database import db_session
 from admin import User, School
-
-def get_title(title):
-    titles = {'': '',
-        '0': '',
-        '1': 'mr',
-        '2': 'mrs',
-        '3': 'srd',
-        '4': 'srada',
-        '5': 'miss',
-        '6': 'dr',
-        '7': 'ms',
-        '8': 'major'
-        };
-    return str(titles[str(title)])
-
-def get_user_picture(epfusername, images_path = '/tmp'):
-    encoded_image = None
-    file_name = epfusername + '.jpeg'
-
-    image = {}
-
-    file = images_path + '/' + file_name
-    if os.path.exists(file):
-        with open(file, 'rb') as image:
-            encoded_image = base64.b64encode(image.read())
-    else:
-        file_name = None
-
-    image = {
-        'base64': encoded_image,
-        'name': file_name
-    }
-
-    return image
 
 def generate_random_string(length=20):
     chars = string.ascii_lowercase + string.digits
     return ''.join(random.choice(chars) for _ in range(length))
 
 def generate_username():
-    username = generate_random_string(16)
+    username = generate_random_string(config['USERNAME_LENGTH'])
     if db_session.query(User).filter(User.user==username).first():
         username = generate_username()
     return username
 
 def generate_token():
-    token = generate_random_string(20)
+    token = generate_random_string(config['TOKEN_LENGTH'])
     if db_session.query(User).filter(User.token==token).first():
         token = generate_token()
     return token
