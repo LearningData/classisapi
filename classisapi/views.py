@@ -20,7 +20,7 @@ def before_request(authenticated_user):
 
         db = None
         if authenticated_user.user != config['ADMINISTRATOR_NAME']:
-            db_url = 'mysql://' + config['API_REMOTE_DB_AUTH'] + \
+            db_url = 'mysql://' + config['REMOTE_DB_AUTH'] + \
                 '@' + school.host + ':' + school.port + '/' + school.db
             db = connect_remote_db(db_url)
         g.db = db
