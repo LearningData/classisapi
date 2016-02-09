@@ -68,7 +68,7 @@ function display_response(jqXHR) {
 }
 
 function get_full_url() {
-	return $(location).attr('href').replace(/\/$/, "") + $('.url').val();
+	return $(location).attr('href').replace(/\#$/, "").replace(/\/$/, "") + $('.url').val();
 }
 
 function get_query() {
