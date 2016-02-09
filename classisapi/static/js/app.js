@@ -67,9 +67,13 @@ function display_response(jqXHR) {
   }
 }
 
+function get_full_url() {
+	return $(location).attr('href').replace(/\/$/, "") + $('.url').val();
+}
+
 function get_query() {
   var auth = get_auth();
-  var url = $('.url').val()
+  var url = get_full_url()
   if(url != '') {
 	init_status();
 
@@ -94,7 +98,7 @@ function get_query() {
 
 function post_query() {
   var auth = get_auth();
-  var url = $('.url').val()
+  var url = get_full_url()
   var json = $('.json').val()
 
   if(url != '' && json !='') {
