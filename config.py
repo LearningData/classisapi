@@ -10,7 +10,7 @@ PORT = os.environ.get('API_PORT', 5000)
 DEBUG = os.environ.get('API_DEBUG', False)
 #Log file where all the requests will be saved
 #Should be changed on production
-LOG_FILE = os.environ.get('API_LOG_FILE', '/tmp/classis.log')
+LOG_FILE = os.environ.get('API_LOG_FILE', '/tmp/classisapi.log')
 
 #DB url to save the users and schools
 #sqlite for development and mysql for production
