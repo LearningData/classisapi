@@ -1,5 +1,6 @@
 import os
 import yaml
+import json
 import subprocess
 import datetime
 from fabric.api import *
@@ -44,14 +45,13 @@ def pack():
           + ' git@github.com:LearningData/classisapi.git ' \
           + ' /tmp/classisapi')
     local('tar -czvf /tmp/classisapi.tar.gz --directory=/tmp  classisapi' \
-          " --exclude='.git*' ")
+          " --exclude='.git*' --exclude='fabfile*' ")
 
 #Link the current app directory
 def symlinks(release_name):
     run('rm -rf %s/classisapi' % deploy_to)
     run('cp -pr %s/releases/%s %s/classisapi' %
         (deploy_to, release_name, deploy_to))
-    run('touch %s/classisapi/classis/__init__.py' % deploy_to)
 
 #Backup the database
 def db_backup(release_name):
@@ -60,13 +60,14 @@ def db_backup(release_name):
 
 #Run migration for database
 def db_migrate():
-    run('.env/bin/python manage.py db upgrade')
+    run('source .env/bin/activate && python manage.py db upgrade')
 
 #Upload the package to host
 def upload(release_name):
     run('mkdir -p %s/releases/%s' % (deploy_to, release_name))
     put('/tmp/classisapi.tar.gz', '/tmp/classisapi.tar.gz')
-    run('tar -xzvf /tmp/classisapi.tar.gz -C %s/releases/%s --strip-components 1' %
+    run('tar -xzvf /tmp/classisapi.tar.gz -C %s/releases/%s ' \
+        '--strip-components 1' %
         (deploy_to, release_name))
     run(deploy_to + '/.env/bin/python -V')
 
@@ -83,37 +84,70 @@ def setup():
 
 #Install dependencies and requirements
 def install():
-    put('settings.json', '.')
-    run('sh install-dependencies.sh')
+    put('settings_prod.json', 'settings.json')
+    #run('sh install-dependencies.sh')
     run('cp -pr ../.env .')
+    try:
+        with open(os.path.join(
+            os.path.abspath(os.path.dirname(__file__)),
+            'settings_prod.json')
+        ) as settings_file:
+            ENV_VARS = json.load(settings_file)
+    except:
+        ENV_VARS = {}
+
+    run('echo "\n#ENVIRONMENT VARIABLES\n" >> .env/bin/activate')
+    for key, value in ENV_VARS.iteritems():
+        try:
+            run('echo "export %s=\"%s\"" >> .env/bin/activate' % (key, value))
+        except KeyError:
+            pass
     run('.env/bin/python .env/bin/activate_this.py')
     run('.env/bin/pip install -r requirements.txt')
-    sudo('service apache2 restart')
+    #sudo('service apache2 restart')
 
-#Rollback to previous release
-def rollback():
-    pass
+#Get the deploying user
+def get_user():
+    hostname = subprocess.check_output(['hostname']).strip()
+    username = subprocess.check_output(['id', '-u', '-n']).strip()
+    return username + '@' + hostname
 
 #Updates the deployment.log
 def update_log(release_name):
     tag = get_tag()
     hash = get_tag_hash(tag)
     timestamp = str(datetime.datetime.now())
-    hostname = subprocess.check_output(['hostname']).strip()
-    username = subprocess.check_output(['id', '-u', '-n']).strip()
     message = timestamp + ': Branch ' + tag + \
             ' (' + hash + ') as release ' + release_name + \
-            ' deployed by ' + username + '@' + hostname
+            ' deployed by ' + get_user()
     run("echo '%s' >> deployment.log" % message)
 
 #Deploy a completely functional app from scratch
 def bootstrap():
     pass
 
+def keep_releases(max=3):
+    output = run('ls -xtr releases/')
+    dirs = output.split()
+    remove_dirs = dirs[:-max]
+    for dir in remove_dirs:
+        run('rm -rf releases/%s' % dir)
+
+#Rollback to previous release
+def rollback():
+    with cd(deploy_to):
+        output = run('ls -xtr releases/')
+        dirs = output.split()
+        previous_release = dirs[-2:2][0]
+        symlinks(previous_release)
+        timestamp = str(datetime.datetime.now())
+        message = timestamp + ': Rollback to release ' + previous_release + \
+                ' by ' + get_user()
+        run("echo '%s' >> deployment.log" % message)
+
 #Deploy app
 def deploy():
     release_name = get_release_name()
-    cleanup()
     pack()
     db_backup(release_name)
     with cd(deploy_to):
@@ -124,6 +158,7 @@ def deploy():
             install()
             db_migrate()
         update_log(release_name)
+        keep_releases()
     cleanup()
 
 #Task to download icons and reports from remote servers
