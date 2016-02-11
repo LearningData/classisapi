@@ -21,10 +21,10 @@ manager = Manager(app)
 manager.add_command('db', MigrateCommand)
 
 from classisapi import app, config
-from classis import classis
+import classis
 from classisapi.admin import *
 
-app.register_blueprint(classis)
+#app.register_blueprint(classis)
 
 class ServerCommand(Command):
     def run(self):
