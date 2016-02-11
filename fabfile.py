@@ -140,6 +140,8 @@ def rollback():
         dirs = output.split()
         previous_release = dirs[-2:2][0]
         symlinks(previous_release)
+        with cd('classisapi'):
+            install()
         timestamp = str(datetime.datetime.now())
         message = timestamp + ': Rollback to release ' + previous_release + \
                 ' by ' + get_user()
