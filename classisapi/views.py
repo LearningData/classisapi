@@ -252,6 +252,22 @@ def get_guardians():
         'guardians': [guardian.json() for guardian in guardians]
         })
 
+@app.route('/guardians/active', methods=['GET'])
+def get_active_guardians():
+    """Get all guardians for current students."""
+
+    guardians = db.query(Guardian). \
+            outerjoin(Guardian.students). \
+            outerjoin(Student.info). \
+            filter(Info.enrolstatus == 'C'). \
+            all()
+
+    return jsonify({
+        '_client_id': client_id,
+        '_count': len(guardians),
+        'guardians': [guardian.json() for guardian in guardians]
+        })
+
 @app.route('/guardians/<int:guardian_id>', methods=['GET'])
 def get_guardian(guardian_id):
     """Get a guardian's information."""

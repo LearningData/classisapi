@@ -71,6 +71,7 @@ class Student(Base):
             'language': self.info.language,
             'entry_date': str(self.info.entrydate),
             'leaving_date': str(self.info.leavingdate),
+            'guardians': [guardian.json() for guardian in self.gidsids],
             'classes': [class_member.class_id for class_member in self.classes],
             'communities': [community_member.community_id for community_member in self.communities if community_member.is_active()],
         }
