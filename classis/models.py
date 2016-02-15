@@ -41,9 +41,7 @@ class Student(Base):
         return False
 
     def get_picture(self, client_id = ''):
-        if self.info.epfusername != '':
-            return get_user_picture(self.info.epfusername, '/tmp/' + client_id)
-        return
+        return get_user_picture(self.info.epfusername, '/tmp/' + client_id)
 
     def get_pictures_json(self, client_id):
         image = self.get_picture(client_id)
@@ -63,7 +61,7 @@ class Student(Base):
             'date_of_birth': str(self.dob),
             'active': self.is_active(),
             'enroll_number': self.info.formerupn,
-            'username': 'demo' + self.info.epfusername,
+            'username': self.info.epfusername,
             'epf_username': self.info.epfusername,
             'email': self.info.email,
             'staff_child': self.info.staffchild,
@@ -104,9 +102,7 @@ class Teacher(Base):
         return True
 
     def get_picture(self, client_id = ''):
-        if self.epfusername != '':
-            return get_user_picture(self.epfusername, '/tmp/' + client_id)
-        return
+        return get_user_picture(self.epfusername, '/tmp/' + client_id)
 
     def get_pictures_json(self, client_id):
         image = self.get_picture(client_id)
