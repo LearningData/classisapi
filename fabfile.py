@@ -45,7 +45,7 @@ def pack():
           + ' git@github.com:LearningData/classisapi.git ' \
           + ' /tmp/classisapi')
     local('tar -czvf /tmp/classisapi.tar.gz --directory=/tmp  classisapi' \
-          " --exclude='.git*' --exclude='fabfile*' ")
+          " --exclude='.git*'")
 
 #Link the current app directory
 def symlinks(release_name):
@@ -125,6 +125,10 @@ def update_log(release_name):
 #Deploy a completely functional app from scratch
 def bootstrap():
     pass
+
+#Restarts apache server
+def restart_apache():
+    sudo("service apache2 restart")
 
 def keep_releases(max=3):
     output = run('ls -xtr releases/')
