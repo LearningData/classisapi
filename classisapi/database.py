@@ -19,7 +19,7 @@ def init_db():
     from services import create_school, create_api_user
 
     try:
-        administrator = db_session.query(User). \
+        administrator = User.query. \
                 filter(User.user==config['ADMINISTRATOR_NAME']).first()
         if not administrator:
             school = create_school('Admin School', '', '', '')

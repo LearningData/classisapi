@@ -15,18 +15,18 @@ def generate_random_string(length=20):
 
 def generate_username():
     username = generate_random_string(config['USERNAME_LENGTH'])
-    if db_session.query(User).filter(User.user==username).first():
+    if User.query.filter(User.user==username).first():
         username = generate_username()
     return username
 
 def generate_token():
     token = generate_random_string(config['TOKEN_LENGTH'])
-    if db_session.query(User).filter(User.token==token).first():
+    if User.query.filter(User.token==token).first():
         token = generate_token()
     return token
 
 def create_api_user(school_id, email, username=''):
-    user = db_session.query(User).filter(User.user==username).first()
+    user = User.query.filter(User.user==username).first()
     if not user:
         user = User()
     user.user = username
@@ -41,7 +41,7 @@ def create_api_user(school_id, email, username=''):
     return user
 
 def create_school(name, client_id, host, db, epf_path='', port='', city=''):
-    school = db_session.query(School).filter(School.db==db).first()
+    school = School.query.filter(School.db==db).first()
     if not school:
         school = School()
     school.name = name

@@ -11,7 +11,7 @@ from database import db_session
 client_id = None
 
 def check_auth(user, token):
-    return db_session.query(User). \
+    return User.query. \
             filter(and_(User.user == user, User.token == token)). \
             first()
 
