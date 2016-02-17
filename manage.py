@@ -1,4 +1,5 @@
 import os
+import unittest
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_script import Manager, Command
@@ -18,7 +19,6 @@ migrate = Migrate(app, db)
 migrate.init_app(app, db, directory='classisapi/migrations')
 
 manager = Manager(app)
-manager.add_command('db', MigrateCommand)
 
 from classisapi import app, config
 import classis
@@ -32,7 +32,16 @@ class ServerCommand(Command):
                 port=config['PORT'],
                 debug=config['DEBUG'])
 
+class TestCommand(Command):
+    def run(self):
+        test_loader = unittest.defaultTestLoader
+        test_runner = unittest.TextTestRunner()
+        test_suite = test_loader.discover('.')
+        test_runner.run(test_suite)
+
+manager.add_command('db', MigrateCommand)
 manager.add_command('run_server', ServerCommand)
+manager.add_command('test', TestCommand)
 
 if __name__ == '__main__':
     manager.run()
