@@ -6,7 +6,6 @@ import base64
 from datetime import datetime
 
 from classisapi import config
-from database import db_session
 from admin import User, School
 
 def generate_random_string(length=20):
@@ -35,8 +34,6 @@ def create_api_user(school_id, email, username=''):
     user.token = generate_token()
     user.school_id = school_id
     user.email = email
-    db_session.add(user)
-    db_session.commit()
 
     return user
 
@@ -54,7 +51,5 @@ def create_school(name, client_id, host, db, epf_path='', port='', city=''):
         school.port = port
     if city != '':
         school.city = city
-    db_session.add(school)
-    db_session.commit()
 
     return school

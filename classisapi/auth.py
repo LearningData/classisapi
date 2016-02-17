@@ -4,9 +4,8 @@ from functools import wraps
 from flask import Response, request, abort
 from sqlalchemy import or_, and_
 
-from classisapi import config
+from classisapi import config, db_session
 from admin import User
-from database import db_session
 
 client_id = None
 
