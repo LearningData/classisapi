@@ -15,11 +15,11 @@ def before_request(authenticated_user):
     global client_id
     global db
     if authenticated_user:
-        client_id = authenticated_user.school.client_id
         school = authenticated_user.school
 
         db = None
         if authenticated_user.user != config['ADMINISTRATOR_NAME']:
+            client_id = school.client_id
             db_url = 'mysql://' + config['REMOTE_DB_AUTH'] + \
                 '@' + school.host + ':' + school.port + '/' + school.db
             db = connect_remote_db(db_url)
