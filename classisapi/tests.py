@@ -14,11 +14,17 @@ class MainTestCase(unittest.TestCase):
     def setUp(self):
         app.config['TESTING'] = True
         app.config['DB_URL'] = 'sqlite:///test.db'
+        app.config['ADMINISTRATOR_NAME'] = 'administrator'
         app.config['USERNAME_LENGTH'] = 50
         app.config['TOKEN_LENGTH'] = 100
 
         self.app = app.test_client()
         db_session = connect_db()
+
+        self.post_headers = headers = [('Content-Type', 'application/json')]
+        self.register_json = '{"school_name": "test_school",' \
+            '"client_id": "test_client_id",' \
+            '"host": "test_host", "db": "test_db_remote" }'
 
     def tearDown(self):
         os.unlink('test.db')
@@ -75,6 +81,40 @@ class MainTestCase(unittest.TestCase):
         admin = User.query.filter(User.user=='administrator').first()
         url = '/register?user=' + admin.user + '&token=' + admin.token
         assert self.app.get(url).status_code == 405
+
+    def test_app_post_register_query_with_admin_without_json_returns_status_415(self):
+        init_db()
+        admin = User.query.filter(User.user=='administrator').first()
+        url = '/register?user=' + admin.user + '&token=' + admin.token
+        assert self.app.post(url).status_code == 415
+
+    def test_app_post_register_query_with_admin_without_json_with_content_type_returns_status_400(self):
+        init_db()
+        admin = User.query.filter(User.user=='administrator').first()
+        url = '/register?user=' + admin.user + '&token=' + admin.token
+        headers = self.post_headers
+        assert self.app.post(url, headers=headers).status_code == 400
+
+    def test_app_post_register_query_with_admin_with_json_without_content_type_returns_status_415(self):
+        init_db()
+        admin = User.query.filter(User.user=='administrator').first()
+        url = '/register?user=' + admin.user + '&token=' + admin.token
+        json = self.register_json
+        assert self.app.post(url, data=json).status_code == 415
+
+    def test_app_post_register_query_with_admin_with_json_with_content_type_returns_status_201(self):
+        init_db()
+        admin = User.query.filter(User.user=='administrator').first()
+        url = '/register?user=' + admin.user + '&token=' + admin.token
+        headers = self.post_headers
+        json = self.register_json
+        assert self.app.post(url, headers=headers, data=json).status_code == 201
+
+    def test_app_get_register_query_with_valid_user_other_than_admin_returns_status_401(self):
+        school = create_school('test', 'test', 'test', 'test')
+        user = create_api_user(school.id, 'email@test.com')
+        url = '/register?user=' + user.user + '&token=' + user.token
+        assert self.app.post(url).status_code == 401
 
 if __name__ == '__main__':
     unittest.main()
