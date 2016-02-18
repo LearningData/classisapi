@@ -3,7 +3,7 @@ import datetime
 from sqlalchemy import Column, Integer, String, ForeignKey, Table, Boolean, DateTime
 from sqlalchemy.orm import Session, relationship
 
-from database import Base, engine
+from database import Base
 
 class School(Base):
     __tablename__ = 'school'

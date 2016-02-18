@@ -20,3 +20,4 @@ flask-migrate==1.7.0
 alembic==0.8.4
 Fabric==1.10.2
 PyYAML==3.11.0
+pillow

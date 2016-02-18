@@ -15,11 +15,11 @@ def before_request(authenticated_user):
     global client_id
     global db
     if authenticated_user:
-        client_id = authenticated_user.school.client_id
         school = authenticated_user.school
 
         db = None
         if authenticated_user.user != config['ADMINISTRATOR_NAME']:
+            client_id = school.client_id
             db_url = 'mysql://' + config['REMOTE_DB_AUTH'] + \
                 '@' + school.host + ':' + school.port + '/' + school.db
             db = connect_remote_db(db_url)
@@ -46,6 +46,10 @@ def forbidden(error):
 @app.errorhandler(404)
 def not_found(error):
         return make_response(jsonify({'error': 'Not found'}), 404)
+
+@app.errorhandler(415)
+def invalid_content_type(error):
+        return make_response(jsonify({'error': 'Invalid Content-Type'}), 415)
 
 @app.route('/')
 def index():
@@ -81,11 +85,14 @@ def register_api_user():
     """Register a user. Restricted to administrator. """ \
     """Requires school_name, client_id, host and db in JSON format."""
 
-    if not request.json or not 'school_name' in request.json \
-            or not 'client_id' in request.json \
-            or not 'host' in request.json \
-            or not 'db' in request.json:
-        abort(400)
+    if not request.json:
+        abort(415)
+    else:
+        if not 'school_name' in request.json \
+                or not 'client_id' in request.json \
+                or not 'host' in request.json \
+                or not 'db' in request.json:
+            abort(400)
 
     epf_path = ''
     if 'epf_path' in request.json:

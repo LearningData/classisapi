@@ -2,6 +2,7 @@ import os
 import base64
 
 def get_title(title):
+    title_key = str(title)
     titles = {'': '',
         '0': '',
         '1': 'mr',
@@ -13,7 +14,7 @@ def get_title(title):
         '7': 'ms',
         '8': 'major'
         };
-    return str(titles[str(title)])
+    return str(titles[title_key]) if title_key in titles else ''
 
 def get_user_picture(epfusername, images_path = '/tmp'):
     encoded_image = None

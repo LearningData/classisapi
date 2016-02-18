@@ -378,11 +378,15 @@ class Class(Base):
                         )
 
     def json(self):
+        subject_name = ''
+        if self.subject:
+            subject_name = self.subject.name
+
         return {
             'id': self.id,
             'name': self.name,
             'subject_id': self.subject_id,
-            'subject_name': self.subject.name,
+            'subject_name': subject_name,
             'stage': self.cohort.stage,
             'year': self.cohort.year,
             'course_id': self.cohort.course_id,

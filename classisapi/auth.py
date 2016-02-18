@@ -4,14 +4,13 @@ from functools import wraps
 from flask import Response, request, abort
 from sqlalchemy import or_, and_
 
-from classisapi import config
+from classisapi import config, db_session
 from admin import User
-from database import db_session
 
 client_id = None
 
 def check_auth(user, token):
-    return db_session.query(User). \
+    return User.query. \
             filter(and_(User.user == user, User.token == token)). \
             first()
 
@@ -24,7 +23,7 @@ def requires_auth(api_method):
             auth = request.args
             checked_user = check_auth(auth.get('user'), auth.get('token'))
 
-            if not auth or not checked_user:
+            if not auth or not checked_user or checked_user is None:
                 abort(401)
 
             checked_user.requests_count += 1
