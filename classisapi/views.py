@@ -47,6 +47,10 @@ def forbidden(error):
 def not_found(error):
         return make_response(jsonify({'error': 'Not found'}), 404)
 
+@app.errorhandler(415)
+def invalid_content_type(error):
+        return make_response(jsonify({'error': 'Invalid Content-Type'}), 415)
+
 @app.route('/')
 def index():
     """Graph API."""
@@ -81,11 +85,14 @@ def register_api_user():
     """Register a user. Restricted to administrator. """ \
     """Requires school_name, client_id, host and db in JSON format."""
 
-    if not request.json or not 'school_name' in request.json \
-            or not 'client_id' in request.json \
-            or not 'host' in request.json \
-            or not 'db' in request.json:
-        abort(400)
+    if not request.json:
+        abort(415)
+    else:
+        if not 'school_name' in request.json \
+                or not 'client_id' in request.json \
+                or not 'host' in request.json \
+                or not 'db' in request.json:
+            abort(400)
 
     epf_path = ''
     if 'epf_path' in request.json:
