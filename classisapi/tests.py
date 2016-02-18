@@ -23,6 +23,9 @@ class MainTestCase(unittest.TestCase):
     def tearDown(self):
         os.unlink('test.db')
 
+    def test_app_running_root_query_returns_status_200(self):
+        assert self.app.get('/').status_code == 200
+
     def test_generate_random_string_default_returns_string_default_length(self):
         assert len(generate_random_string()) == 20
 
@@ -60,6 +63,18 @@ class MainTestCase(unittest.TestCase):
         school = create_school('test', 'test', 'test', 'test')
         user = create_api_user(school.id, 'email@test.com')
         assert user.token != '' and user.user !=''
+
+    def test_app_get_help_query_returns_status_200(self):
+        assert self.app.get('/help').status_code == 200
+
+    def test_app_get_register_query_without_admin_returns_status_401(self):
+        assert self.app.get('/register').status_code == 401
+
+    def test_app_get_register_query_with_admin_returns_status_405(self):
+        init_db()
+        admin = User.query.filter(User.user=='administrator').first()
+        url = '/register?user=' + admin.user + '&token=' + admin.token
+        assert self.app.get(url).status_code == 405
 
 if __name__ == '__main__':
     unittest.main()
