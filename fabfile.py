@@ -15,10 +15,12 @@ deploy_to = '/home/demo/classisapi'
 
 #Restarts apache server
 def restart_apache():
+    print "\n################# Restarting Apache #################\n"
     sudo("service apache2 restart")
 
 #Test the app
 def test():
+    print "\n################# Testing the latest release #################\n"
     run("source .env/bin/activate && python manage.py test")
 
 #Get latest tag
@@ -44,6 +46,7 @@ def get_release_name():
 
 #Pack latest version app with setuptools
 def pack():
+    print "\n################# Packing the latest release  #################\n"
     tag = get_tag()
     local('git clone --branch %s' % tag \
           + ' git@github.com:LearningData/classisapi.git ' \
@@ -53,21 +56,25 @@ def pack():
 
 #Link the current app directory
 def symlinks(release_name):
+    print "\n################# Using the latest release #################\n"
     run('rm -rf %s/classisapi' % deploy_to)
     run('cp -pr %s/releases/%s %s/classisapi' %
         (deploy_to, release_name, deploy_to))
 
 #Backup the database
 def db_backup(release_name):
+    print "\n################# Backing up the database #################\n"
     file = 'classisapi-%s-pre-deployment.sql' % release_name
     run('mysqldump -p$DB_PASS -u class classisapi > /tmp/%s' % file);
 
 #Run migration for database
 def db_migrate():
+    print "\n################# Migrating the database #################\n"
     run('source .env/bin/activate && python manage.py db upgrade')
 
 #Upload the package to host
 def upload(release_name):
+    print "\n################# Uploading the latest release #################\n"
     run('mkdir -p %s/releases/%s' % (deploy_to, release_name))
     put('/tmp/classisapi.tar.gz', '/tmp/classisapi.tar.gz')
     run('tar -xzvf /tmp/classisapi.tar.gz -C %s/releases/%s ' \
@@ -76,6 +83,7 @@ def upload(release_name):
 
 #Clean after deployment
 def cleanup():
+    print "\n################# Cleaning up temporary files #################\n"
     local('rm -rf /tmp/classisapi')
     local('rm /tmp/classisapi.tar.gz')
     run('rm -rf /tmp/classisapi /tmp/classisapi.tar.gz')
@@ -91,11 +99,13 @@ def upload_settings():
 
 #Update virtual env for the new deployment
 def update_venv(release_name):
+    print "\n################# Installing env requirements #################\n"
     run('.env/bin/pip install -r releases/%s/requirements.txt' % release_name)
     run('cp -pr .env releases/%s/' % release_name)
 
 #Install dependencies and requirements
 def install():
+    print "\n################# Installing new release #################\n"
     #sudo('sh install-dependencies.sh')
     try:
         with open(os.path.join(
@@ -123,6 +133,7 @@ def get_user():
 
 #Updates the deployment.log
 def update_log(release_name):
+    print "\n################# Logging deployment #################\n"
     tag = get_tag()
     hash = get_tag_hash(tag)
     timestamp = str(datetime.datetime.now())
@@ -137,6 +148,7 @@ def bootstrap():
 
 #Remove old db dumps
 def clean_dumps(max=2):
+    print "\n################# Removing older db dumps #################\n"
     output = run('ls -xtr /tmp/classisapi-*-pre-deployment.sql')
     files = output.split()
     remove_files = files[:-max]
@@ -145,6 +157,7 @@ def clean_dumps(max=2):
 
 #Remove old releases
 def keep_releases(max=3):
+    print "\n################# Removing older releases #################\n"
     output = run('ls -xtr releases/')
     dirs = output.split()
     remove_dirs = dirs[:-max]
@@ -153,6 +166,7 @@ def keep_releases(max=3):
 
 #Rollback to previous release
 def rollback():
+    print "\n################# Rolling back to previous release #################\n"
     with cd(deploy_to):
         output = run('ls -xtr releases/')
         dirs = output.split()
@@ -167,6 +181,7 @@ def rollback():
 
 #Deploy app
 def deploy():
+    print "\n################# Deploying the latest release #################\n"
     release_name = get_release_name()
     pack()
     db_backup(release_name)
@@ -184,6 +199,7 @@ def deploy():
         keep_releases()
     cleanup()
     clean_dumps()
+    print "\n################# Release has been successfully deployed #################\n"
 
 #Task to download icons and reports from remote servers
 def s(school):
