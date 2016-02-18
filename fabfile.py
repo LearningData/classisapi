@@ -9,9 +9,19 @@ from fabric.operations import run, get, local
 with open('classis/epf_configs.yaml', 'r') as config_file:
     schools = yaml.load(config_file)
 
-env.user = 'azureuser'
-env.hosts = ['demo.learningdata.net:3535']
-deploy_to = '/home/demo/classisapi'
+deploy_to = ''
+
+def staging():
+    env.user = 'azureuser'
+    env.hosts = ['demo.learningdata.net:3535']
+    global deploy_to
+    deploy_to = '/home/demo/classisapi'
+
+def production():
+    env.user = 'azureuser'
+    env.hosts = ['classis.learningdata.net:1975']
+    global deploy_to
+    deploy_to = '/home/htdocs/classisapi2'
 
 #Restarts apache server
 def restart_apache():
