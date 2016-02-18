@@ -13,9 +13,13 @@ env.user = 'azureuser'
 env.hosts = ['demo.learningdata.net:3535']
 deploy_to = '/home/demo/classisapi'
 
+#Restarts apache server
+def restart_apache():
+    sudo("service apache2 restart")
+
 #Test the app
 def test():
-    local("python classisapi/tests.py")
+    run("source .env/bin/activate && python manage.py test")
 
 #Get latest tag
 def get_tag():
@@ -69,7 +73,6 @@ def upload(release_name):
     run('tar -xzvf /tmp/classisapi.tar.gz -C %s/releases/%s ' \
         '--strip-components 1' %
         (deploy_to, release_name))
-    run(deploy_to + '/.env/bin/python -V')
 
 #Clean after deployment
 def cleanup():
@@ -82,11 +85,18 @@ def setup():
     run('mkdir -p releases')
     run('touch deployment.log')
 
+#Upload production settings
+def upload_settings():
+    put('settings_prod.json', 'settings.json')
+
+#Update virtual env for the new deployment
+def update_venv(release_name):
+    run('.env/bin/pip install -r releases/%s/requirements.txt' % release_name)
+    run('cp -pr .env releases/%s/' % release_name)
+
 #Install dependencies and requirements
 def install():
-    put('settings_prod.json', 'settings.json')
-    #run('sh install-dependencies.sh')
-    run('cp -pr ../.env .')
+    #sudo('sh install-dependencies.sh')
     try:
         with open(os.path.join(
             os.path.abspath(os.path.dirname(__file__)),
@@ -103,8 +113,7 @@ def install():
         except KeyError:
             pass
     run('.env/bin/python .env/bin/activate_this.py')
-    run('.env/bin/pip install -r requirements.txt')
-    #sudo('service apache2 restart')
+    #restart_apache()
 
 #Get the deploying user
 def get_user():
@@ -126,10 +135,15 @@ def update_log(release_name):
 def bootstrap():
     pass
 
-#Restarts apache server
-def restart_apache():
-    sudo("service apache2 restart")
+#Remove old db dumps
+def clean_dumps(max=2):
+    output = run('ls -xtr /tmp/classisapi-*-pre-deployment.sql')
+    files = output.split()
+    remove_files = files[:-max]
+    for file in remove_files:
+        run('rm %s' % file)
 
+#Remove old releases
 def keep_releases(max=3):
     output = run('ls -xtr releases/')
     dirs = output.split()
@@ -159,6 +173,9 @@ def deploy():
     with cd(deploy_to):
         setup()
         upload(release_name)
+        update_venv(release_name)
+        with cd('releases/%s' % release_name):
+            test()
         symlinks(release_name)
         with cd('classisapi'):
             install()
@@ -166,6 +183,7 @@ def deploy():
         update_log(release_name)
         keep_releases()
     cleanup()
+    clean_dumps()
 
 #Task to download icons and reports from remote servers
 def s(school):
