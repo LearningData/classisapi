@@ -23,7 +23,7 @@ def requires_auth(api_method):
             auth = request.args
             checked_user = check_auth(auth.get('user'), auth.get('token'))
 
-            if not auth or not checked_user:
+            if not auth or not checked_user or checked_user is None:
                 abort(401)
 
             checked_user.requests_count += 1
