@@ -13,9 +13,15 @@ env.user = 'azureuser'
 env.hosts = ['demo.learningdata.net:3535']
 deploy_to = '/home/demo/classisapi'
 
+#Restarts apache server
+def restart_apache():
+    print "\n################# Restarting Apache #################\n"
+    sudo("service apache2 restart")
+
 #Test the app
 def test():
-    local("python classisapi/tests.py")
+    print "\n################# Testing the latest release #################\n"
+    run("source .env/bin/activate && python manage.py test")
 
 #Get latest tag
 def get_tag():
@@ -40,6 +46,7 @@ def get_release_name():
 
 #Pack latest version app with setuptools
 def pack():
+    print "\n################# Packing the latest release  #################\n"
     tag = get_tag()
     local('git clone --branch %s' % tag \
           + ' git@github.com:LearningData/classisapi.git ' \
@@ -49,30 +56,34 @@ def pack():
 
 #Link the current app directory
 def symlinks(release_name):
+    print "\n################# Using the latest release #################\n"
     run('rm -rf %s/classisapi' % deploy_to)
     run('cp -pr %s/releases/%s %s/classisapi' %
         (deploy_to, release_name, deploy_to))
 
 #Backup the database
 def db_backup(release_name):
+    print "\n################# Backing up the database #################\n"
     file = 'classisapi-%s-pre-deployment.sql' % release_name
     run('mysqldump -p$DB_PASS -u class classisapi > /tmp/%s' % file);
 
 #Run migration for database
 def db_migrate():
+    print "\n################# Migrating the database #################\n"
     run('source .env/bin/activate && python manage.py db upgrade')
 
 #Upload the package to host
 def upload(release_name):
+    print "\n################# Uploading the latest release #################\n"
     run('mkdir -p %s/releases/%s' % (deploy_to, release_name))
     put('/tmp/classisapi.tar.gz', '/tmp/classisapi.tar.gz')
     run('tar -xzvf /tmp/classisapi.tar.gz -C %s/releases/%s ' \
         '--strip-components 1' %
         (deploy_to, release_name))
-    run(deploy_to + '/.env/bin/python -V')
 
 #Clean after deployment
 def cleanup():
+    print "\n################# Cleaning up temporary files #################\n"
     local('rm -rf /tmp/classisapi')
     local('rm /tmp/classisapi.tar.gz')
     run('rm -rf /tmp/classisapi /tmp/classisapi.tar.gz')
@@ -82,11 +93,20 @@ def setup():
     run('mkdir -p releases')
     run('touch deployment.log')
 
+#Upload production settings
+def upload_settings():
+    put('settings_prod.json', 'settings.json')
+
+#Update virtual env for the new deployment
+def update_venv(release_name):
+    print "\n################# Installing env requirements #################\n"
+    run('.env/bin/pip install -r releases/%s/requirements.txt' % release_name)
+    run('cp -pr .env releases/%s/' % release_name)
+
 #Install dependencies and requirements
 def install():
-    put('settings_prod.json', 'settings.json')
-    #run('sh install-dependencies.sh')
-    run('cp -pr ../.env .')
+    print "\n################# Installing new release #################\n"
+    #sudo('sh install-dependencies.sh')
     try:
         with open(os.path.join(
             os.path.abspath(os.path.dirname(__file__)),
@@ -103,8 +123,7 @@ def install():
         except KeyError:
             pass
     run('.env/bin/python .env/bin/activate_this.py')
-    run('.env/bin/pip install -r requirements.txt')
-    #sudo('service apache2 restart')
+    #restart_apache()
 
 #Get the deploying user
 def get_user():
@@ -114,6 +133,7 @@ def get_user():
 
 #Updates the deployment.log
 def update_log(release_name):
+    print "\n################# Logging deployment #################\n"
     tag = get_tag()
     hash = get_tag_hash(tag)
     timestamp = str(datetime.datetime.now())
@@ -126,11 +146,18 @@ def update_log(release_name):
 def bootstrap():
     pass
 
-#Restarts apache server
-def restart_apache():
-    sudo("service apache2 restart")
+#Remove old db dumps
+def clean_dumps(max=2):
+    print "\n################# Removing older db dumps #################\n"
+    output = run('ls -xtr /tmp/classisapi-*-pre-deployment.sql')
+    files = output.split()
+    remove_files = files[:-max]
+    for file in remove_files:
+        run('rm %s' % file)
 
+#Remove old releases
 def keep_releases(max=3):
+    print "\n################# Removing older releases #################\n"
     output = run('ls -xtr releases/')
     dirs = output.split()
     remove_dirs = dirs[:-max]
@@ -139,6 +166,7 @@ def keep_releases(max=3):
 
 #Rollback to previous release
 def rollback():
+    print "\n################# Rolling back to previous release #################\n"
     with cd(deploy_to):
         output = run('ls -xtr releases/')
         dirs = output.split()
@@ -153,12 +181,16 @@ def rollback():
 
 #Deploy app
 def deploy():
+    print "\n################# Deploying the latest release #################\n"
     release_name = get_release_name()
     pack()
     db_backup(release_name)
     with cd(deploy_to):
         setup()
         upload(release_name)
+        update_venv(release_name)
+        with cd('releases/%s' % release_name):
+            test()
         symlinks(release_name)
         with cd('classisapi'):
             install()
@@ -166,6 +198,8 @@ def deploy():
         update_log(release_name)
         keep_releases()
     cleanup()
+    clean_dumps()
+    print "\n################# Release has been successfully deployed #################\n"
 
 #Task to download icons and reports from remote servers
 def s(school):
@@ -183,11 +217,15 @@ def download_remote_files(local_dir, type='icons'):
     local('mkdir -p ' + local_dir)
 
     if remote_dir != '' and local_dir != '':
-        files = []
-        with warn_only():
-            remote_files = run("find " + remote_dir + \
-                               " -name '*." + ext + "' -exec ls {} \; " \
-                               "| grep -P '/[a-z0-9]+." + ext + "'")
-            files += remote_files.splitlines()
-        for file in files:
-            get(file, local_dir)
+        remote_tar_file = 'school_%s.tar.gz' % type
+        run("find " + remote_dir + \
+            " -name '*." + ext + "' -exec ls {} \; " \
+            "| grep -P '/[a-z0-9]+." + ext + "'" \
+            "| tar --transform 's,%s,,' " \
+            "-czvf /tmp/%s -T -" % (remote_dir[1:], remote_tar_file))
+        get('/tmp/%s' % remote_tar_file, local_dir)
+        local("tar -xzvf %s/%s -C %s " \
+              "--strip-components 2" % (local_dir, remote_tar_file, local_dir))
+        run('rm /tmp/%s' % remote_tar_file)
+        local("rm %s/%s" % (local_dir, remote_tar_file))
+
