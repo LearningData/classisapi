@@ -97,8 +97,9 @@ def upload(release_name):
 #Clean after deployment
 def cleanup():
     print "\n################# Cleaning up temporary files #################\n"
+    local('rm -f /tmp/settings.yaml')
     local('rm -rf /tmp/classisapi')
-    local('rm /tmp/classisapi.tar.gz')
+    local('rm -f /tmp/classisapi.tar.gz')
     run('rm -rf /tmp/classisapi /tmp/classisapi.tar.gz')
 
 #Setup the app: necesarry folders and files
@@ -122,10 +123,8 @@ def install():
     print "\n################# Installing new release #################\n"
     #sudo('sh install-dependencies.sh')
     try:
-        with open(os.path.join(
-            os.path.abspath(os.path.dirname(__file__)),
-            'settings.yaml')
-        ) as settings_file:
+        get(deploy_to + '/settings.yaml', '/tmp/')
+        with open('/tmp/settings.yaml') as settings_file:
             ENV_VARS = yaml.load(settings_file)
     except:
         ENV_VARS = {}
@@ -167,7 +166,7 @@ def clean_dumps(max=2):
     files = output.split()
     remove_files = files[:-max]
     for file in remove_files:
-        run('rm %s' % file)
+        run('rm -f %s' % file)
 
 #Remove old releases
 def keep_releases(max=3):
