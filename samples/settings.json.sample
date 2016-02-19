@@ -1,5 +1,0 @@
-{
-	"API_DB_URL": "mysql://user:password@localhost/classisapi",
-	"API_REMOTE_DB_AUTH": "class:newpass",
-	"API_DEBUG": "True"
-}
