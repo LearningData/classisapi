@@ -1,6 +1,5 @@
 import os
 import yaml
-import json
 import subprocess
 import datetime
 from fabric.api import *
@@ -70,6 +69,10 @@ def symlinks(release_name):
     run('rm -rf %s/classisapi' % deploy_to)
     run('cp -pr %s/releases/%s %s/classisapi' %
         (deploy_to, release_name, deploy_to))
+    run('ln -s %s/epf_configs.yaml %s/classisapi/classis/epf_configs.yaml' %
+        (deploy_to, deploy_to))
+    run('ln -s %s/settings.yaml %s/classisapi/settings.yaml' %
+        (deploy_to, deploy_to))
 
 #Backup the database
 def db_backup(release_name):
@@ -104,8 +107,9 @@ def setup():
     run('touch deployment.log')
 
 #Upload production settings
-def upload_settings():
-    put('settings_prod.json', 'settings.json')
+def upload_settings(stage):
+    put('settings_%s.yaml' % stage, deploy_to + '/settings.yaml')
+    put('classis/epf_configs.yaml', deploy_to + '/epf_configs.yaml')
 
 #Update virtual env for the new deployment
 def update_venv(release_name):
@@ -120,9 +124,9 @@ def install():
     try:
         with open(os.path.join(
             os.path.abspath(os.path.dirname(__file__)),
-            'settings_prod.json')
+            'settings.yaml')
         ) as settings_file:
-            ENV_VARS = json.load(settings_file)
+            ENV_VARS = yaml.load(settings_file)
     except:
         ENV_VARS = {}
 
