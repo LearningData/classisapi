@@ -1,5 +1,6 @@
-settings.json
-settings_prod.json
+settings.yaml
+settings_staging.yaml
+settings_production.yaml
 epf_configs.yaml
 
 # Byte-compiled / optimized / DLL files
