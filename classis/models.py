@@ -6,7 +6,7 @@ from sqlalchemy import Column, Integer, String, ForeignKey, Table
 from sqlalchemy.orm import Session, relationship
 from sqlalchemy.ext.automap import automap_base
 
-from services import get_title, get_user_picture
+from services import get_title, get_user_picture, get_student_reports
 
 Base = automap_base()
 
@@ -50,6 +50,14 @@ class Student(Base):
             'student_id': self.id,
             'file_name': image['name'],
             'picture': image['base64'],
+        }
+
+    def get_reports_json(self, client_id):
+        reports = get_student_reports(self.info.epfusername, '/tmp/' + client_id)
+
+        return {
+            'student_id': self.id,
+            'reports': reports,
         }
 
     def json(self):
@@ -457,6 +465,39 @@ class Homework(Base):
             'mark': [mark.json() for mark in self.marks],
             'classes': [class_group.class_id for mark in self.marks for class_group in mark.classes],
         }
+
+
+class Report(Base):
+    __tablename__ = 'report'
+
+    id = Column('id', Integer, primary_key=True)
+    publish_date = Column('date', String)
+    attendance_start_date = Column('attendancestartdate', String)
+    add_comment = Column('addcomment', String)
+    template = Column('transform', String)
+    course_id = Column('course_id', Integer, ForeignKey('course.id'))
+
+    def json(self):
+        return {
+            'id': self.id,
+            'title': self.title,
+            'publish_date': self.publish_date,
+            'attendance_start_date': self.attendance_start_date,
+            'deadline': self.deadline,
+            'template': self.template,
+            'style': self.style,
+            'year': self.year,
+            'type': self.type,
+            'stage': self.stage,
+            'course_id': self.course_id,
+        }
+
+
+class ReportEntry(Base):
+    __tablename__ = 'reportentry'
+
+    report_id = Column('report_id', Integer, ForeignKey('report.id'))
+    student_id = Column('student_id', Integer, ForeignKey('student.id'))
 
 
 class Section(Base):
