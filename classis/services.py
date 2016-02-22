@@ -38,3 +38,21 @@ def get_user_picture(epfusername, images_path = '/tmp'):
 
     return image
 
+def get_student_reports(epfusername, reports_path = '/tmp'):
+    reports = []
+
+    if epfusername != '':
+        dir = reports_path + '/' + epfusername
+        if os.path.exists(dir):
+            for file in os.listdir(dir):
+                with open(dir + '/' + file, 'rb') as pdf:
+                    encoded_pdf = base64.b64encode(pdf.read())
+
+                    report = {
+                        'base64': encoded_pdf,
+                        'name': file
+                    }
+
+                    reports.append(report)
+
+    return reports
