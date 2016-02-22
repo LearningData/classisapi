@@ -60,6 +60,11 @@ class MainTestCase(unittest.TestCase):
         assert school.name == 'test_name' and school.client_id == 'test_clid' \
                 and school.host == 'test_host' and school.db == 'test_db'
 
+    def test_create_school_optional_args_creates_school(self):
+        school = create_school('test_name', 'test_clid', 'test_host',
+                               'test_db', 'test_port', 'test_city')
+        assert school.port == 'test_port' and school.city == 'test_city'
+
     def test_create_api_user_required_args_creates_user(self):
         school = create_school('test', 'test', 'test', 'test')
         user = create_api_user(school.id, 'email@test.com')
@@ -115,6 +120,19 @@ class MainTestCase(unittest.TestCase):
         user = create_api_user(school.id, 'email@test.com')
         url = '/register?user=' + user.user + '&token=' + user.token
         assert self.app.post(url).status_code == 401
+
+    def test_app_post_register_full_query_with_admin_with_json_with_content_type_returns_status_201(self):
+        init_db()
+        json = '{"school_name": "test_school",' \
+            '"client_id": "test_client_id",' \
+            '"port": "3307",' \
+            '"city": "test_city",' \
+            '"email": "test_email@email.com",' \
+            '"host": "test_host", "db": "test_db_remote" }'
+        admin = User.query.filter(User.user=='administrator').first()
+        url = '/register?user=' + admin.user + '&token=' + admin.token
+        headers = self.post_headers
+        assert self.app.post(url, headers=headers, data=json).status_code == 201
 
 if __name__ == '__main__':
     unittest.main()

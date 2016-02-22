@@ -37,7 +37,7 @@ def create_api_user(school_id, email, username=''):
 
     return user
 
-def create_school(name, client_id, host, db, epf_path='', port='', city=''):
+def create_school(name, client_id, host, db, port='', city=''):
     school = School.query.filter(School.db==db).first()
     if not school:
         school = School()
@@ -45,8 +45,6 @@ def create_school(name, client_id, host, db, epf_path='', port='', city=''):
     school.client_id = client_id
     school.host = host
     school.db = db
-    if epf_path != '':
-        school.eportfolio_path = epf_path
     if port != '':
         school.port = port
     if city != '':
