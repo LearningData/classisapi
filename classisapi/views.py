@@ -4,7 +4,8 @@ from flask import Flask, redirect, request, jsonify, g, url_for
 from flask import make_response, abort, render_template, Response
 from sqlalchemy import or_, and_
 
-from classisapi import app, config, db_session
+from classisapi import app, config
+from classisapi.database import connect_db
 from classis.models import *
 from auth import requires_auth, restrict_administrator, client_id
 from services import create_school, create_api_user
@@ -17,7 +18,7 @@ def before_request(authenticated_user):
     if authenticated_user:
         school = authenticated_user.school
 
-        db = None
+        db = connect_db()
         if authenticated_user.user != config['ADMINISTRATOR_NAME']:
             client_id = school.client_id
             db_url = 'mysql://' + config['REMOTE_DB_AUTH'] + \
@@ -116,12 +117,12 @@ def register_api_user():
         port,
         city
     )
-    db_session.add(school)
-    db_session.commit()
+    db.add(school)
+    db.commit()
 
     user = create_api_user(school.id, email)
-    db_session.add(user)
-    db_session.commit()
+    db.add(user)
+    db.commit()
 
     return jsonify({
         'user': user.user,
