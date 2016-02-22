@@ -53,12 +53,7 @@ class Student(Base):
         }
 
     def get_reports_json(self, client_id):
-        reports = get_student_reports(self.info.epfusername, '/tmp/' + client_id)
-
-        return {
-            'student_id': self.id,
-            'reports': reports,
-        }
+        return get_student_reports(self.info.epfusername, '/tmp/' + client_id)
 
     def json(self):
         return {

@@ -4,7 +4,7 @@ from flask import Flask, redirect, request, jsonify, g, url_for
 from flask import make_response, abort, render_template, Response
 from sqlalchemy import or_, and_
 
-from classisapi import app, config
+from classisapi import app, config, db_session
 from classis.models import *
 from auth import requires_auth, restrict_administrator, client_id
 from services import create_school, create_api_user
@@ -116,7 +116,12 @@ def register_api_user():
         port,
         city
     )
+    db_session.add(school)
+    db_session.commit()
+
     user = create_api_user(school.id, email)
+    db_session.add(user)
+    db_session.commit()
 
     return jsonify({
         'user': user.user,
@@ -598,3 +603,50 @@ def get_homeworks_by_class(class_id):
         'homeworks': [homework.json() for homework in homeworks]
         })
 
+@app.route('/reports', methods=['GET'])
+def get_reports():
+    """Get all the available reports."""
+
+    reports = db.query(Report). \
+            all()
+
+    return jsonify({
+        '_client_id': client_id,
+        '_count': len(reports),
+        'reports': [report.json() for report in reports]
+        })
+
+@app.route('/reports/year/<int:year>', methods=['GET'])
+def get_reports_by_year(year):
+    """Get all the available reports for a specific academic year."""
+
+    report = db.query(Report). \
+            filter(Report.year == year). \
+            first()
+
+    if not report:
+        abort(404)
+
+    return jsonify({
+        '_client_id': client_id,
+        '_count': 1,
+        'reports': report.json()
+        })
+
+@app.route('/reports/student/<int:student_id>', methods=['GET'])
+@app.route('/students/<int:student_id>/reports', methods=['GET'])
+def get_student_reports(student_id):
+    """Get all the available reports for a student."""
+
+    student = db.query(Student). \
+            filter(Student.id == student_id). \
+            first()
+
+    if not student:
+        abort(404)
+
+    return jsonify({
+        '_client_id': client_id,
+        '_count': 1,
+        'reports': student.get_reports_json(client_id)
+        })
