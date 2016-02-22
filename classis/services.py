@@ -1,6 +1,8 @@
 import os
 import base64
 
+from classisapi import config
+
 def get_title(title):
     title_key = str(title)
     titles = {'': '',
@@ -16,7 +18,9 @@ def get_title(title):
         };
     return str(titles[title_key]) if title_key in titles else ''
 
-def get_user_picture(epfusername, images_path = '/tmp'):
+def get_user_picture(epfusername, client_id=''):
+    images_path = config['AVATARS_DIR'] + '/' + client_id
+
     encoded_image = None
     file_name = None
 
@@ -38,7 +42,9 @@ def get_user_picture(epfusername, images_path = '/tmp'):
 
     return image
 
-def get_student_reports(epfusername, reports_path = '/tmp'):
+def get_student_reports(epfusername, client_id=''):
+    reports_path = config['REPORTS_DIR'] + '/' + client_id
+
     reports = []
 
     if epfusername != '':
