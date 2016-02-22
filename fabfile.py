@@ -30,7 +30,8 @@ def restart_apache():
 #Test the app
 def test():
     print "\n################# Testing the latest release #################\n"
-    run("source .env/bin/activate && python manage.py test")
+    if run("source .env/bin/activate && python manage.py test").failed:
+        abort()
 
 #Get latest tag
 def get_tag():
