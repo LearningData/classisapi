@@ -25,9 +25,11 @@ function change_method() {
 }
 
 function init_status() {
+	$('#headers').html('	Response:	');
+	$('#response').html('');
 	$('.error').hide();
 	$('.success').hide();
-	$('.loading').toggle();
+	$('.loading').show();
 }
 
 function change_status(status) {
@@ -74,7 +76,7 @@ function get_full_url() {
 function get_query() {
   var auth = get_auth();
   var url = get_full_url()
-  if(url != '') {
+  if($('.url').val() != '') {
 	init_status();
 
 	$.getJSON(url + '?' + auth, function() {
@@ -101,7 +103,7 @@ function post_query() {
   var url = get_full_url()
   var json = $('.json').val()
 
-  if(url != '' && json !='') {
+  if($('.url').val() != '' && json != '') {
 	init_status();
 
 	$.ajax({
