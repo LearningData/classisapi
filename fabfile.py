@@ -233,12 +233,12 @@ def download_remote_files(local_dir, type='icons'):
         remote_tar_file = 'school_%s.tar.gz' % type
         run("find " + remote_dir + \
             " -name '*." + ext + "' -exec ls {} \; " \
-            "| grep -P '/[a-z0-9]+." + ext + "'" \
+            "| grep -P '[a-z0-9]+." + ext + "'" \
             "| tar --transform 's,%s,,' " \
             "-czvf /tmp/%s -T -" % (remote_dir[1:], remote_tar_file))
         get('/tmp/%s' % remote_tar_file, local_dir)
         local("tar -xzvf %s/%s -C %s " \
-              "--strip-components 2" % (local_dir, remote_tar_file, local_dir))
+              "--strip-components 1" % (local_dir, remote_tar_file, local_dir))
         run('rm /tmp/%s' % remote_tar_file)
         local("rm %s/%s" % (local_dir, remote_tar_file))
 
