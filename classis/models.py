@@ -476,9 +476,9 @@ class Report(Base):
         return {
             'id': self.id,
             'title': self.title,
-            'publish_date': self.publish_date,
-            'attendance_start_date': self.attendance_start_date,
-            'deadline': self.deadline,
+            'publish_date': str(self.publish_date),
+            'attendance_start_date': str(self.attendance_start_date),
+            'deadline': str(self.deadline),
             'template': self.template,
             'style': self.style,
             'year': self.year,
