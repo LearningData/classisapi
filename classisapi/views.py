@@ -95,9 +95,6 @@ def register_api_user():
                 or not 'db' in request.json:
             abort(400)
 
-    epf_path = ''
-    if 'epf_path' in request.json:
-        epf_path = request.json['epf_path']
     port = ''
     if 'port' in request.json:
         port = request.json['port']
@@ -113,7 +110,6 @@ def register_api_user():
         request.json['client_id'],
         request.json['host'],
         request.json['db'],
-        epf_path,
         port,
         city
     )
