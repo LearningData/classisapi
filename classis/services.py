@@ -28,7 +28,7 @@ def get_user_picture(epfusername, client_id=''):
 
     if epfusername != '':
         file_name = epfusername + '.jpeg'
-        file = images_path + '/' + file_name
+        file = images_path + '/' + epfusername + '/' + file_name
         if os.path.exists(file):
             with open(file, 'rb') as image:
                 encoded_image = base64.b64encode(image.read())
@@ -51,14 +51,16 @@ def get_student_reports(epfusername, client_id=''):
         dir = reports_path + '/' + epfusername
         if os.path.exists(dir):
             for file in os.listdir(dir):
-                with open(dir + '/' + file, 'rb') as pdf:
-                    encoded_pdf = base64.b64encode(pdf.read())
+                file_name, file_ext = os.path.splitext(file)
+                if file_ext == '.pdf':
+                    with open(dir + '/' + file, 'rb') as pdf:
+                        encoded_pdf = base64.b64encode(pdf.read())
 
-                    report = {
-                        'base64': encoded_pdf,
-                        'name': file
-                    }
+                        report = {
+                            'base64': encoded_pdf,
+                            'name': file
+                        }
 
-                    reports.append(report)
+                        reports.append(report)
 
     return reports
