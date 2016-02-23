@@ -221,7 +221,7 @@ def deploy():
 #Task to download icons and reports from remote servers
 def s(school):
     env.config = schools[school]
-    env.hosts = env.config["host"]
+    env.hosts = [env.config["host"]]
 
 def download_remote_files(local_dir, type='icons'):
     if type == 'icons':
