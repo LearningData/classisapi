@@ -1,4 +1,5 @@
 import os
+import re
 import yaml
 import subprocess
 import datetime
@@ -163,16 +164,18 @@ def bootstrap():
 #Remove old db dumps
 def clean_dumps(max=2):
     print "\n################# Removing older db dumps #################\n"
-    output = run('ls -xtr /tmp/classisapi-*-pre-deployment.sql')
+    output = run('ls -xtr /tmp/classisapi-*-pre-deployment.sql', shell=False)
     files = output.split()
+    print files
     remove_files = files[:-max]
     for file in remove_files:
-        run('rm -f %s' % file)
+        if re.match('^\/tmp\/classisapi.*.sql$', file):
+            run('rm -f /tmp/%s' % os.path.basename(file))
 
 #Remove old releases
 def keep_releases(max=3):
     print "\n################# Removing older releases #################\n"
-    output = run('ls -xtr releases/')
+    output = run('ls -xtr releases/', shell=False)
     dirs = output.split()
     remove_dirs = dirs[:-max]
     for dir in remove_dirs:
@@ -182,7 +185,7 @@ def keep_releases(max=3):
 def rollback():
     print "\n################# Rolling back to previous release #################\n"
     with cd(deploy_to):
-        output = run('ls -xtr releases/')
+        output = run('ls -xtr releases/', shell=False)
         dirs = output.split()
         previous_release = dirs[-2:2][0]
         symlinks(previous_release)
